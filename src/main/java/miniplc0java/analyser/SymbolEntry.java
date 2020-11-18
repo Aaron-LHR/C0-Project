@@ -1,19 +1,24 @@
 package miniplc0java.analyser;
 
+import miniplc0java.tokenizer.IdentType;
+
 public class SymbolEntry {
     boolean isConstant;
     boolean isInitialized;
     int stackOffset;
+    IdentType identType;
 
     /**
-     * @param isConstant
-     * @param isDeclared
-     * @param stackOffset
+     * @param isConstant:
+     * @param isInitialized:
+     * @param stackOffset:
+     * @param identType:
      */
-    public SymbolEntry(boolean isConstant, boolean isDeclared, int stackOffset) {
+    public SymbolEntry(boolean isConstant, boolean isInitialized, int stackOffset, IdentType identType) {
         this.isConstant = isConstant;
-        this.isInitialized = isDeclared;
+        this.isInitialized = isInitialized;
         this.stackOffset = stackOffset;
+        this.identType = identType;
     }
 
     /**

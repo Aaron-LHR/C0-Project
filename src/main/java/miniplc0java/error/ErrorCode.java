@@ -3,7 +3,7 @@ package miniplc0java.error;
 public enum ErrorCode {
     NoError, // Should be only used internally.
     StreamError, EOF, InvalidInput, InvalidIdentifier, IntegerOverflow, DoubleOverflow, InvalidDouble,
-    InvalidStringLiteral, InvalidCharLiteral,
+    InvalidStringLiteral, InvalidCharLiteral, InvalidIdentType, InvalidReturnValueType, InvalidExpr,
     NoBegin, NoEnd, NeedIdentifier, ConstantNeedValue, NoSemicolon, InvalidVariableDeclaration, IncompleteExpression,
     NotDeclared, AssignToConstant, DuplicateDeclaration, NotInitialized, InvalidAssignment, InvalidPrint, ExpectedToken
 }
