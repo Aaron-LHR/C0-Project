@@ -25,7 +25,7 @@ public final class Analyser {
     Token peekedToken = null;
 
     /** 符号表 */
-    ArrayList<SymbolTable> listOfSymbolTable = new ArrayList<>();
+    ArrayList<HashMap<String, SymbolEntry>> listOfSymbolTable = new ArrayList<>();
     HashMap<String, FunctionEntry> functionSymbolTable = new HashMap<>();
 
     /** 下一个变量的栈偏移 */
@@ -133,17 +133,19 @@ public final class Analyser {
      * @throws AnalyzeError 如果重复定义了则抛异常
      */
     private int addSymbol(String name, boolean isInitialized, boolean isConstant, Pos curPos, IdentType identType, Numeral numeral) throws AnalyzeError {
-        SymbolTable symbolTable = this.listOfSymbolTable.get(this.listOfSymbolTable.size() - 1);
+        HashMap<String, SymbolEntry> symbolTable = this.listOfSymbolTable.get(this.listOfSymbolTable.size() - 1);
         if (symbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
-            return symbolTable.put(name, isInitialized, isConstant, identType, numeral);
+            int offset = symbolTable.size();
+            symbolTable.put(name, new SymbolEntry(isConstant, isInitialized, offset, identType, numeral, this.listOfSymbolTable.size()));
+            return offset;
         }
     }
 
     private SymbolEntry getSymbol(String name, Pos curPos) throws AnalyzeError {
         for (int index = this.listOfSymbolTable.size() - 1; index >= 0; index--) {
-            SymbolTable symbolTable = this.listOfSymbolTable.get(index);
+            HashMap<String, SymbolEntry> symbolTable = this.listOfSymbolTable.get(index);
             var entry = symbolTable.get(name);
             if (entry != null) {
                 return entry;
