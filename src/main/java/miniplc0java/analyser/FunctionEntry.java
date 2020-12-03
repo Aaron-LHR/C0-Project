@@ -1,5 +1,6 @@
 package miniplc0java.analyser;
 
+import miniplc0java.instruction.Instruction;
 import miniplc0java.tokenizer.IdentType;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 public class FunctionEntry {
     ArrayList<IdentType> function_param_list;
     IdentType returnValueType;
+    ArrayList<Instruction> instructions;
     int stackOffset;
 
     /**
@@ -14,9 +16,10 @@ public class FunctionEntry {
      * @param returnValueType:
      * @param stackOffset:
      */
-    public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType, int stackOffset) {
+    public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, int stackOffset) {
         this.function_param_list = function_param_list;
         this.returnValueType = returnValueType;
+        this.instructions = instructions;
         this.stackOffset = stackOffset;
     }
 

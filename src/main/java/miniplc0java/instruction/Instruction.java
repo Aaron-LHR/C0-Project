@@ -1,24 +1,28 @@
 package miniplc0java.instruction;
 
+import miniplc0java.tokenizer.IdentType;
+import miniplc0java.value.Numeral;
+
+import java.util.IdentityHashMap;
 import java.util.Objects;
 
 public class Instruction {
     private Operation opt;
-    Integer x;
+    Numeral x;
 
     public Instruction(Operation opt) {
         this.opt = opt;
-        this.x = 0;
+        this.x = new Numeral(IdentType.VOID, 0.0);
     }
 
-    public Instruction(Operation opt, Integer x) {
+    public Instruction(Operation opt, Numeral x) {
         this.opt = opt;
         this.x = x;
     }
 
     public Instruction() {
         this.opt = Operation.LIT;
-        this.x = 0;
+        this.x = new Numeral(IdentType.DOUBLE, 0.0);
     }
 
     @Override
@@ -44,11 +48,11 @@ public class Instruction {
         this.opt = opt;
     }
 
-    public Integer getX() {
+    public Numeral getX() {
         return x;
     }
 
-    public void setX(Integer x) {
+    public void setX(Numeral x) {
         this.x = x;
     }
 

@@ -68,6 +68,10 @@ public class Tokenizer {
                 }
             } else if ((peek == 'e' || peek == 'E') && isDouble) {
                 stringBuilder.append(it.nextChar());
+                peek = it.peekChar();
+                if (peek == '+' || peek == '-') {
+                    stringBuilder.append(it.nextChar());
+                }
                 if (Character.isDigit(it.peekChar())) {
                     isDouble = true;
                 } else {
