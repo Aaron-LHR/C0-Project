@@ -4,7 +4,7 @@ public enum  IdentType {
     INT,
     VOID,
     DOUBLE,
-    //STRING_LITERAL
+    STRING_LITERAL
     ;
 
     @Override
@@ -16,8 +16,8 @@ public enum  IdentType {
                 return "void";
             case DOUBLE:
                 return "double";
-//            case STRING_LITERAL:
-//                return "string";
+            case STRING_LITERAL:
+                return "string";
             default:
                 return "InvalidTokenType";
         }

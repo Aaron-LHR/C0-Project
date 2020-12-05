@@ -1,27 +1,37 @@
 package miniplc0java.instruction;
 
 import miniplc0java.tokenizer.IdentType;
-import miniplc0java.Numeral.Numeral;
 
 import java.util.Objects;
 
 public class Instruction {
     private Operation opt;
-    Numeral x;
+    int intValue;
+    double doubleValue;
+    String stringValue;
+    IdentType identType;
 
     public Instruction(Operation opt) {
         this.opt = opt;
-        this.x = new Numeral(IdentType.VOID, 0.0);
+        this.identType = IdentType.VOID;
     }
 
-    public Instruction(Operation opt, Numeral x) {
+    public Instruction(Operation opt, int intValue) {
         this.opt = opt;
-        this.x = x;
+        this.intValue = intValue;
+        this.identType = IdentType.INT;
     }
 
-    public Instruction() {
-        this.opt = Operation.LIT;
-        this.x = new Numeral(IdentType.DOUBLE, 0.0);
+    public Instruction(Operation opt, double doubleValue) {
+        this.opt = opt;
+        this.doubleValue = doubleValue;
+        this.identType = IdentType.DOUBLE;
+    }
+
+    public Instruction(Operation opt, String stringValue) {
+        this.opt = opt;
+        this.stringValue = stringValue;
+        this.identType = IdentType.STRING_LITERAL;
     }
 
     @Override
@@ -31,12 +41,12 @@ public class Instruction {
         if (o == null || getClass() != o.getClass())
             return false;
         Instruction that = (Instruction) o;
-        return opt == that.opt && Objects.equals(x, that.x);
+        return opt == that.opt && Objects.equals(intValue, that.intValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(opt, x);
+        return Objects.hash(opt, intValue);
     }
 
     public Operation getOpt() {
@@ -47,12 +57,28 @@ public class Instruction {
         this.opt = opt;
     }
 
-    public Numeral getX() {
-        return x;
+//    public int getValue() {
+//        if (this.identType == IdentType.INT) {
+//            return intValue;
+//        } else if (this.identType == IdentType.DOUBLE) {
+//            return doubleValue;
+//        }
+//
+//    }
+
+    public void setValue(double doubleValue) {
+        this.doubleValue = doubleValue;
+        this.identType = IdentType.DOUBLE;
     }
 
-    public void setX(Numeral x) {
-        this.x = x;
+    public void setValue(int intValue) {
+        this.intValue = intValue;
+        this.identType = IdentType.INT;
+    }
+
+    public void setValue(String stringValue) {
+        this.stringValue = stringValue;
+        this.identType = IdentType.STRING_LITERAL;
     }
 
     @Override
@@ -68,7 +94,7 @@ public class Instruction {
             case LIT:
             case LOD:
             case STO:
-                return String.format("%s %s", this.opt, this.x);
+                return String.format("%s %s", this.opt, this.intValue);
             default:
                 return "ILL";
         }

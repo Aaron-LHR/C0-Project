@@ -1,7 +1,6 @@
 package miniplc0java.analyser;
 
 import miniplc0java.tokenizer.IdentType;
-import miniplc0java.Numeral.Numeral;
 
 import java.util.HashMap;
 
@@ -22,8 +21,8 @@ public class SymbolTable {
         return this.table.get(name);
     }
 
-    public int put(String name, boolean isInitialized, boolean isConstant, IdentType identType, Numeral numeral) {
-        this.table.put(name, new SymbolEntry(isConstant, isInitialized, this.curPoint, identType, numeral, this.level));
+    public int put(String name, boolean isInitialized, boolean isConstant, IdentType identType) {
+        this.table.put(name, new SymbolEntry(isConstant, isInitialized, this.curPoint, identType, this.level));
         return this.curPoint++;
     }
 
