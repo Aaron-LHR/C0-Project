@@ -22,6 +22,10 @@ public class Numeral {
         this.value = value;
     }
 
+    public Numeral(IdentType identType) {
+        this.identType = identType;
+    }
+
     public Numeral add(Numeral numeral, Pos pos) throws AnalyzeError {
         if (numeral.identType != this.identType) {
             throw new AnalyzeError(ErrorCode.TypeMismatch, pos);
@@ -47,17 +51,16 @@ public class Numeral {
         if (numeral.identType != this.identType) {
             throw new AnalyzeError(ErrorCode.TypeMismatch, pos);
         }
-        if (numeral.value == 0.0) {
-            throw new AnalyzeError(ErrorCode.DivideZero, pos);
-        }
+//        if (numeral.value == 0.0) {
+//            throw new AnalyzeError(ErrorCode.DivideZero, pos);
+//        }
         return new Numeral(this.identType, this.value / numeral.value);
     }
 
-    public void assign(Numeral numeral, Pos pos) throws AnalyzeError {
+    public void calculate(Numeral numeral, Pos pos) throws AnalyzeError {
         if (numeral.identType != this.identType) {
             throw new AnalyzeError(ErrorCode.TypeMismatch, pos);
         }
-        this.value = numeral.value;
     }
 
     public void reverse(Pos pos) throws AnalyzeError {

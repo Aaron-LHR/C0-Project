@@ -31,8 +31,8 @@ public final class Analyser {
     /** 下一个变量的栈偏移 */
     int nextOffset = 0;
 
-    int[][] OPGMatrix = new int[12][12];
-    HashMap<TokenType, Integer> operator = new HashMap<>();
+//    int[][] OPGMatrix = new int[12][12];
+    HashMap<TokenType, Integer> operatorPriority = new HashMap<>();
 
 //     = {'+': 0, '*': 1, '(': 2, ')': 3, 'i': 4, '#': 5}
 
@@ -42,20 +42,20 @@ public final class Analyser {
     }
 
     private void buildOPGMatrix() {
-        operator.put(TokenType.PLUS, 0);
-        operator.put(TokenType.MINUS, 1);
-        operator.put(TokenType.MUL, 2);
-        operator.put(TokenType.DIV, 3);
-        operator.put(TokenType.EQ, 4);
-        operator.put(TokenType.NEQ, 5);
-        operator.put(TokenType.LT, 6);
-        operator.put(TokenType.GT, 7);
-        operator.put(TokenType.LE, 8);
-        operator.put(TokenType.GE, 9);
-        operator.put(TokenType.PRE_MINUS, 10);
-        operator.put(TokenType.AS_KW, 11);
-
-        OPGMatrix[operator.get(TokenType.PLUS)][operator.get(TokenType.PLUS)] = 1;  // >
+        operatorPriority.put(TokenType.PRE_MINUS, 6);
+        operatorPriority.put(TokenType.AS_KW, 5);
+        operatorPriority.put(TokenType.MUL, 4);
+        operatorPriority.put(TokenType.DIV, 4);
+        operatorPriority.put(TokenType.PLUS, 3);
+        operatorPriority.put(TokenType.MINUS, 3);
+        operatorPriority.put(TokenType.EQ, 2);
+        operatorPriority.put(TokenType.NEQ, 2);
+        operatorPriority.put(TokenType.LT, 2);
+        operatorPriority.put(TokenType.GT, 2);
+        operatorPriority.put(TokenType.LE, 2);
+        operatorPriority.put(TokenType.GE, 2);
+        operatorPriority.put(TokenType.ASSIGN, 1);
+//        OPGMatrix[operatorPriority.get(TokenType.PLUS)][operatorPriority.get(TokenType.PLUS)] = 1;  // >
     }
 
     public List<Instruction> analyse() throws CompileError {
@@ -298,7 +298,7 @@ public final class Analyser {
         var value = new Numeral(identType, 0.0);
         Token operator = nextIf(TokenType.ASSIGN);
         if (operator != null) {
-            value.assign(analyse_expr(), operator.getStartPos());
+            value.calculate(analyse_expr(), operator.getStartPos());
             initialized = true;
         }
 
@@ -337,7 +337,7 @@ public final class Analyser {
         // TODO: 常表达式，常量只能被读取，不能被修改
         var value = new Numeral(identType, 0.0);
         Token operator = expect(TokenType.ASSIGN);
-        value.assign(analyse_expr(), operator.getStartPos());
+        value.calculate(analyse_expr(), operator.getStartPos());
         // 分号
         expect(TokenType.SEMICOLON);
 
@@ -537,7 +537,7 @@ public final class Analyser {
     // TODO: 2020/11/18 提示：对于 运算符表达式 operator_expr、取反表达式 negate_expr 和类型转换表达式 as_expr 可以使用局部的算符优先文法进行分析
     private Numeral analyse_expr(ArrayList<Instruction> instructions) throws CompileError {
         SymbolEntry symbolEntry;
-        Numeral numeral;
+        Numeral result;
         switch (peek().getTokenType()) {
             case IDENT:
                 var nameToken = expect(TokenType.IDENT);
@@ -549,11 +549,12 @@ public final class Analyser {
                         }
                         Token assign = expect(TokenType.ASSIGN);
                         numeral = analyse_expr(instructions);
-                        symbolEntry.getNumeral().assign(numeral, assign.getStartPos());
+                        symbolEntry.getNumeral().calculate(numeral, assign.getStartPos());
                         instructions.add(new Instruction(symbolEntry.getOperationByLocation(), new Numeral(IdentType.INT, symbolEntry.getStackOffset())));
                         instructions.add(new Instruction(Operation.push, numeral));
                         instructions.add(new Instruction(Operation.store64));
-                        return new Numeral(IdentType.VOID, 0.0);
+                        result = new Numeral(IdentType.VOID, 0.0);
+                        break;
                     case L_PAREN:   // call_expr
                         FunctionEntry functionEntry = getFunctionSymbol((String) nameToken.getValue(), nameToken.getStartPos());
                         expect(TokenType.L_PAREN);
@@ -561,7 +562,8 @@ public final class Analyser {
                         analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos());
                         expect(TokenType.R_PAREN);
                         instructions.add(new Instruction(Operation.call, new Numeral(IdentType.INT, functionEntry.getStackOffset())));
-                        return new Numeral(IdentType.VOID, 0.0);
+                        result = new Numeral(functionEntry.getReturnValueType(), 0.0);
+                        break;
                     default:    // ident_expr
                         symbolEntry = getSymbol((String) nameToken.getValue(), nameToken.getStartPos());
                         instructions.add(new Instruction(symbolEntry.getOperationByLocation(), new Numeral(IdentType.INT, symbolEntry.getStackOffset())));
@@ -642,7 +644,7 @@ public final class Analyser {
             }
         }
         // TODO: 2020/12/2 返回值
-        return 0;
+        return numeral;
     }
 
 
