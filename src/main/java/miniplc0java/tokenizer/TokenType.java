@@ -74,7 +74,9 @@ public enum TokenType {
     /** 注释 */
     COMMENT,
     /** 文件尾 */
-    EOF;
+    EOF,
+    /** 前置 - */
+    PRE_MINUS;
 
     @Override
     public String toString() {

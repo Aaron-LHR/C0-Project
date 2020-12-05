@@ -1,4 +1,4 @@
-package miniplc0java.value;
+package miniplc0java.Numeral;
 
 import miniplc0java.tokenizer.IdentType;
 import miniplc0java.error.AnalyzeError;
@@ -57,9 +57,10 @@ public class Numeral {
         if (numeral.identType != this.identType) {
             throw new AnalyzeError(ErrorCode.TypeMismatch, pos);
         }
-        if (numeral.value == 0.0) {
-            throw new AnalyzeError(ErrorCode.DivideZero, pos);
-        }
         this.value = numeral.value;
+    }
+
+    public void reverse(Pos pos) throws AnalyzeError {
+        this.value = -this.value;
     }
 }

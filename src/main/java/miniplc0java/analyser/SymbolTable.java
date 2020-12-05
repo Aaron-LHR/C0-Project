@@ -1,24 +1,19 @@
 package miniplc0java.analyser;
 
 import miniplc0java.tokenizer.IdentType;
-import miniplc0java.util.Pos;
-import miniplc0java.value.Numeral;
+import miniplc0java.Numeral.Numeral;
 
 import java.util.HashMap;
 
 public class SymbolTable {
     HashMap<String, SymbolEntry> table;
-    private boolean hasNext;
     private int level;
-    private int blockLevel;
     private int basePoint;
     private int curPoint;
 
-    public SymbolTable(int level, int blockLevel, int basePoint) {
+    public SymbolTable(int level, int basePoint) {
         this.table = new HashMap<>();
-        this.hasNext = false;
         this.level = level;
-        this.blockLevel = blockLevel;
         this.basePoint = basePoint;
         this.curPoint = basePoint;
     }
@@ -32,23 +27,15 @@ public class SymbolTable {
         return this.curPoint++;
     }
 
-    public boolean hasNext() {
-        return hasNext;
-    }
-
-    public void setHasNext(boolean hasNext) {
-        this.hasNext = hasNext;
-    }
-
     public int getLevel() {
         return level;
-    }
-
-    public int getBlockLevel() {
-        return blockLevel;
     }
 
     public int getOffset() {
         return this.curPoint;
     }
+}
+
+enum IdentLocation {
+    global, arga, loca
 }

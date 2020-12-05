@@ -3,7 +3,9 @@ package miniplc0java.tokenizer;
 public enum  IdentType {
     INT,
     VOID,
-    DOUBLE;
+    DOUBLE,
+    //STRING_LITERAL
+    ;
 
     @Override
     public String toString() {
@@ -14,6 +16,8 @@ public enum  IdentType {
                 return "void";
             case DOUBLE:
                 return "double";
+//            case STRING_LITERAL:
+//                return "string";
             default:
                 return "InvalidTokenType";
         }

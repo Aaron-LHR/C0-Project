@@ -6,10 +6,10 @@ import miniplc0java.tokenizer.IdentType;
 import java.util.ArrayList;
 
 public class FunctionEntry {
-    ArrayList<IdentType> function_param_list;
-    IdentType returnValueType;
-    ArrayList<Instruction> instructions;
-    int stackOffset;
+    private ArrayList<IdentType> function_param_list;
+    private IdentType returnValueType;
+    private ArrayList<Instruction> instructions;
+    private int stackOffset;
 
     /**
      * @param function_param_list:
@@ -21,6 +21,10 @@ public class FunctionEntry {
         this.returnValueType = returnValueType;
         this.instructions = instructions;
         this.stackOffset = stackOffset;
+    }
+
+    public ArrayList<Instruction> getInstructions() {
+        return instructions;
     }
 
     /**

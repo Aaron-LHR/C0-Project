@@ -12,7 +12,7 @@ import miniplc0java.tokenizer.TokenType;
 import miniplc0java.tokenizer.IdentType;
 import miniplc0java.tokenizer.Tokenizer;
 import miniplc0java.util.Pos;
-import miniplc0java.value.Numeral;
+import miniplc0java.Numeral.Numeral;
 
 import java.util.*;
 
@@ -25,20 +25,44 @@ public final class Analyser {
     Token peekedToken = null;
 
     /** 符号表 */
-    ArrayList<HashMap<String, SymbolEntry>> listOfSymbolTable = new ArrayList<>();
+    ArrayList<SymbolTable> listOfSymbolTable = new ArrayList<>();
     HashMap<String, FunctionEntry> functionSymbolTable = new HashMap<>();
 
     /** 下一个变量的栈偏移 */
     int nextOffset = 0;
 
+    int[][] OPGMatrix = new int[12][12];
+    HashMap<TokenType, Integer> operator = new HashMap<>();
+
+//     = {'+': 0, '*': 1, '(': 2, ')': 3, 'i': 4, '#': 5}
+
     public Analyser(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
-        this.instructions = new ArrayList<>();
+        buildOPGMatrix();
+    }
+
+    private void buildOPGMatrix() {
+        operator.put(TokenType.PLUS, 0);
+        operator.put(TokenType.MINUS, 1);
+        operator.put(TokenType.MUL, 2);
+        operator.put(TokenType.DIV, 3);
+        operator.put(TokenType.EQ, 4);
+        operator.put(TokenType.NEQ, 5);
+        operator.put(TokenType.LT, 6);
+        operator.put(TokenType.GT, 7);
+        operator.put(TokenType.LE, 8);
+        operator.put(TokenType.GE, 9);
+        operator.put(TokenType.PRE_MINUS, 10);
+        operator.put(TokenType.AS_KW, 11);
+
+        OPGMatrix[operator.get(TokenType.PLUS)][operator.get(TokenType.PLUS)] = 1;  // >
     }
 
     public List<Instruction> analyse() throws CompileError {
         analyseProgram();
-        return instructions;
+        // TODO: 2020/12/4 analyse时要返回：
+        //1. 全局符号表
+        //2. 函数表（函数的所有属性和指令集）
     }
 
     /**
@@ -133,19 +157,17 @@ public final class Analyser {
      * @throws AnalyzeError 如果重复定义了则抛异常
      */
     private int addSymbol(String name, boolean isInitialized, boolean isConstant, Pos curPos, IdentType identType, Numeral numeral) throws AnalyzeError {
-        HashMap<String, SymbolEntry> symbolTable = this.listOfSymbolTable.get(this.listOfSymbolTable.size() - 1);
+        SymbolTable symbolTable = this.listOfSymbolTable.get(this.listOfSymbolTable.size() - 1);
         if (symbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
-            int offset = symbolTable.size();
-            symbolTable.put(name, new SymbolEntry(isConstant, isInitialized, offset, identType, numeral, this.listOfSymbolTable.size()));
-            return offset;
+            return symbolTable.put(name, isInitialized, isConstant, identType, numeral);
         }
     }
 
     private SymbolEntry getSymbol(String name, Pos curPos) throws AnalyzeError {
         for (int index = this.listOfSymbolTable.size() - 1; index >= 0; index--) {
-            HashMap<String, SymbolEntry> symbolTable = this.listOfSymbolTable.get(index);
+            SymbolTable symbolTable = this.listOfSymbolTable.get(index);
             var entry = symbolTable.get(name);
             if (entry != null) {
                 return entry;
@@ -160,27 +182,33 @@ public final class Analyser {
 
     private void addFunctionSymbol(String name, ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, Pos curPos) throws AnalyzeError {
         SymbolTable globalSymbolTable = this.listOfSymbolTable.get(0);
-        if (globalSymbolTable.get(name) != null) {
+        if (globalSymbolTable.get(name) != null || functionSymbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
             this.functionSymbolTable.put(name, new FunctionEntry(function_param_list, returnValueType, instructions, getNextVariableOffset()));
         }
     }
 
-    private void addScope(boolean isBlock) {
-        int level, blockLevel = 0, basePoint = 0;
+    private FunctionEntry getFunctionSymbol(String name, Pos curPos) throws AnalyzeError {
+        FunctionEntry functionEntry = functionSymbolTable.get(name);
+        if (functionEntry == null) {
+            throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
+        } else {
+            return functionEntry;
+        }
+    }
+
+    private void addScope() {
+        int level, basePoint;
         if (listOfSymbolTable.size() == 0) {
             level = 0;
+            basePoint = 0;
         } else {
-            level = listOfSymbolTable.get(listOfSymbolTable.size() - 1).getLevel() + 1;
-        }
-        if (isBlock) {
             SymbolTable lastSymbolTable = listOfSymbolTable.get(listOfSymbolTable.size() - 1);
-            blockLevel = lastSymbolTable.getBlockLevel() + 1;
-            lastSymbolTable.setHasNext(true);
+            level = lastSymbolTable.getLevel() + 1;
             basePoint = lastSymbolTable.getOffset();
         }
-        SymbolTable symbolTable = new SymbolTable(level, blockLevel, basePoint);
+        SymbolTable symbolTable = new SymbolTable(level, basePoint);
         listOfSymbolTable.add(symbolTable);
     }
 
@@ -225,21 +253,16 @@ public final class Analyser {
         return entry.isConstant();
     }
 
-    // TODO: 2020/11/23 助教指导书里4和4.5关于function_param的定义不一样 
-
-
-    // TODO: 2020/11/23 修正：扩展 c0 的 double_literal 的 E 后面应该能带加减号的，即
-    //
-    // DOUBLE_LITERAL -> digit+ '.' digit+ ([eE] [+-]? digit+)?
-    //
-    //麻烦写到这里的同学修改一下吧（x
     private void analyseProgram() throws CompileError {
         // 程序 -> 'begin' 主过程 'end'
         // 示例函数，示例如何调用子程序
-        addScope(false);
+        addScope();
+        ArrayList<Instruction> instructions = new ArrayList<>();
+        // TODO: 2020/12/4 添加标准库函数
+        addFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, instructions, new Pos(0, 0));
         switch (peek().getTokenType()) {
             case LET_KW:
-                analyse_let_decl_stmt();
+                analyse_let_decl_stmt(instructions);
                 break;
             case CONST_KW:
                 analyse_const_decl_stmt();
@@ -254,7 +277,7 @@ public final class Analyser {
         removeScope();
     }
 
-    private void analyse_let_decl_stmt() throws CompileError {
+    private void analyse_let_decl_stmt(ArrayList<Instruction> instructions) throws CompileError {
         expect(TokenType.LET_KW);
         var nameToken = expect(TokenType.IDENT);
         boolean initialized = false;
@@ -275,7 +298,6 @@ public final class Analyser {
         var value = new Numeral(identType, 0.0);
         Token operator = nextIf(TokenType.ASSIGN);
         if (operator != null) {
-            // TODO: 分析初始化的表达式，如果存在初始化表达式，其类型应当与变量声明时的类型相同。
             value.assign(analyse_expr(), operator.getStartPos());
             initialized = true;
         }
@@ -286,7 +308,6 @@ public final class Analyser {
         String name = (String) nameToken.getValue(); /* 名字 */
         var offset = addSymbol(name, initialized, false, /* 当前位置 */ nameToken.getStartPos(), identType, value);
 
-        // TODO: 如果没有初始化的话在栈里推入一个初始值，没有初始化的变量的值未定义。我们不规定对于使用未初始化变量的行为的处理方式，你可以选择忽略、提供默认值或者报错
         if (curIsGlobal()) {
             instructions.add(new Instruction(Operation.globa, new Numeral(IdentType.INT, offset)));
         } else {
@@ -296,7 +317,7 @@ public final class Analyser {
         instructions.add(new Instruction(Operation.store64));
     }
 
-    private void analyse_const_decl_stmt() throws CompileError {
+    private void analyse_const_decl_stmt(ArrayList<Instruction> instructions) throws CompileError {
         expect(TokenType.CONST_KW);
         var nameToken = expect(TokenType.IDENT);
         expect(TokenType.COLON);
@@ -313,28 +334,32 @@ public final class Analyser {
                 throw new AnalyzeError(ErrorCode.InvalidIdentType, type.getStartPos());
         }
 
-        // 等于号
-        expect(TokenType.ASSIGN);
-
         // TODO: 常表达式，常量只能被读取，不能被修改
-        var value = analyse_expr();
-
+        var value = new Numeral(identType, 0.0);
+        Token operator = expect(TokenType.ASSIGN);
+        value.assign(analyse_expr(), operator.getStartPos());
         // 分号
         expect(TokenType.SEMICOLON);
 
         // 加入符号表
         String name = (String) nameToken.getValue();
-        addSymbol(name, true, true, nameToken.getStartPos(), identType);
+        var offset = addSymbol(name, true, true, nameToken.getStartPos(), identType, value);
 
         // TODO: 这里把常量值直接放进栈里，位置和符号表记录的一样。
         // 更高级的程序还可以把常量的值记录下来，遇到相应的变量直接替换成这个常数值，
         // 我们这里就先不这么干了。
-//        instructions.add(new Instruction(Operation.LIT, value));
+        if (curIsGlobal()) {
+            instructions.add(new Instruction(Operation.globa, new Numeral(IdentType.INT, offset)));
+        } else {
+            instructions.add(new Instruction(Operation.loca, new Numeral(IdentType.INT, offset)));
+        }
+        instructions.add(new Instruction(Operation.push, value));
+        instructions.add(new Instruction(Operation.store64));
     }
 
     private void analyse_function() throws CompileError {
         addScope();
-        ArrayList<Instruction> instructions;
+        ArrayList<Instruction> instructions = new ArrayList<>();
         expect(TokenType.FN_KW);
         var nameToken = expect(TokenType.IDENT);
         expect(TokenType.L_PAREN);
@@ -362,86 +387,68 @@ public final class Analyser {
         String name = (String) nameToken.getValue();
         addFunctionSymbol(name, function_param_list, identType, instructions, nameToken.getStartPos());
 
-        // 这里把常量值直接放进栈里，位置和符号表记录的一样。
-        // 更高级的程序还可以把常量的值记录下来，遇到相应的变量直接替换成这个常数值，
-        // 我们这里就先不这么干了。
-        // TODO: instructions.add(new Instruction(Operation.LIT, value));
         removeScope();
     }
 
-    // TODO: 2020/12/2 必定有一个参数
     private ArrayList<IdentType> analyse_function_param_list() throws CompileError {
         ArrayList<IdentType> function_param_list = new ArrayList<>();
-        if (peek().getTokenType() == TokenType.IDENT) {
-            var nameToken = expect(TokenType.IDENT);
-            expect(TokenType.COLON);
-            var type = expect(TokenType.IDENT);
-            IdentType identType;
-            switch ((String) type.getValue()) {
-                case "int":
-                    identType = IdentType.INT;
-                    break;
-                case "double":
-                    identType = IdentType.DOUBLE;
-                    break;
-                default:
-                    throw new AnalyzeError(ErrorCode.InvalidIdentType, type.getStartPos());
-            }
-            // 加入符号表
-            String name = (String) nameToken.getValue();
-            addSymbol(name, true, false, nameToken.getStartPos(), identType);
-            function_param_list.add(identType);
+        if (peek().getTokenType() == TokenType.IDENT || peek().getTokenType() == TokenType.CONST_KW) {
+            analyse_function_param(function_param_list);
             while (nextIf(TokenType.COMMA) != null) {
-                nameToken = expect(TokenType.IDENT);
-                expect(TokenType.COLON);
-                type = expect(TokenType.IDENT);
-                switch ((String) type.getValue()) {
-                    case "int":
-                        identType = IdentType.INT;
-                        break;
-                    case "double":
-                        identType = IdentType.DOUBLE;
-                        break;
-                    default:
-                        throw new AnalyzeError(ErrorCode.InvalidIdentType, type.getStartPos());
-                }
-                // 加入符号表
-                name = (String) nameToken.getValue();
-                addSymbol(name, true, false, nameToken.getStartPos(), identType);
-                function_param_list.add(identType);
-
-                // 这里把常量值直接放进栈里，位置和符号表记录的一样。
-                // 更高级的程序还可以把常量的值记录下来，遇到相应的变量直接替换成这个常数值，
-                // 我们这里就先不这么干了。
-                // TODO: instructions.add(new Instruction(Operation.LIT, value));
+                analyse_function_param(function_param_list);
             }
         }
         return function_param_list;
     }
 
-    private void analyse_block_stmt() throws CompileError {
+    private void analyse_function_param(ArrayList<IdentType> function_param_list) throws CompileError {
+        boolean isConstant = false;
+        if (nextIf(TokenType.CONST_KW) != null) {
+            isConstant = true;
+        }
+        var nameToken = expect(TokenType.IDENT);
+        expect(TokenType.COLON);
+        var type = expect(TokenType.IDENT);
+        IdentType identType;
+        switch ((String) type.getValue()) {
+            case "int":
+                identType = IdentType.INT;
+                break;
+            case "double":
+                identType = IdentType.DOUBLE;
+                break;
+            default:
+                throw new AnalyzeError(ErrorCode.InvalidIdentType, type.getStartPos());
+        }
+        // 加入符号表
+        String name = (String) nameToken.getValue();
+        addSymbol(name, true, isConstant, nameToken.getStartPos(), identType, new Numeral(identType, 0.0));
+        function_param_list.add(identType);
+    }
+
+    private void analyse_block_stmt(ArrayList<Instruction> instructions) throws CompileError {
         addScope();
         expect(TokenType.L_BRACE);
         boolean stmtFlag = true;
         while (stmtFlag) {
-            stmtFlag = analyse_stmt();
+            stmtFlag = analyse_stmt(instructions);
         }
         expect(TokenType.R_BRACE);
         removeScope();
     }
 
-    private boolean analyse_stmt() throws CompileError {
+    private boolean analyse_stmt(ArrayList<Instruction> instructions) throws CompileError {
         switch (peek().getTokenType()) {
             case IDENT:
             case L_PAREN:
             case MINUS:
-                analyse_expr_stmt();
+                analyse_expr_stmt(instructions);
                 break;
             case LET_KW:
-                analyse_let_decl_stmt();
+                analyse_let_decl_stmt(instructions);
                 break;
             case CONST_KW:
-                analyse_const_decl_stmt();
+                analyse_const_decl_stmt(instructions);
                 break;
             case IF_KW:
                 analyse_if_stmt();
@@ -459,7 +466,7 @@ public final class Analyser {
                 analyse_return_stmt();
                 break;
             case L_BRACE:
-                analyse_block_stmt();
+                analyse_block_stmt(instructions);
                 break;
             case SEMICOLON:
                 analyse_empty_stmt();
@@ -471,9 +478,9 @@ public final class Analyser {
     }
 
     // TODO: 最终值
-    private void analyse_expr_stmt() throws CompileError {
+    private void analyse_expr_stmt(ArrayList<Instruction> instructions) throws CompileError {
         // TODO: 2020/11/18 表达式如果有值，值将会被丢弃
-        analyse_expr();
+        analyse_expr(instructions);
         expect(TokenType.SEMICOLON);
     }
 
@@ -528,40 +535,71 @@ public final class Analyser {
     }
 
     // TODO: 2020/11/18 提示：对于 运算符表达式 operator_expr、取反表达式 negate_expr 和类型转换表达式 as_expr 可以使用局部的算符优先文法进行分析
-    private Numeral analyse_expr() throws CompileError {
+    private Numeral analyse_expr(ArrayList<Instruction> instructions) throws CompileError {
+        SymbolEntry symbolEntry;
+        Numeral numeral;
         switch (peek().getTokenType()) {
             case IDENT:
                 var nameToken = expect(TokenType.IDENT);
                 switch (peek().getTokenType()) {
                     case ASSIGN:    // assign_expr
-                        // TODO: 2020/11/18 查符号表
-                        // TODO: 2020/11/18 赋值表达式的值类型永远是 void（即不能被使用）
-                        expect(TokenType.ASSIGN);
-                        analyse_expr();
-                        break;
+                        symbolEntry = getSymbol((String) nameToken.getValue(), nameToken.getStartPos());
+                        if (symbolEntry.isConstant()) {
+                            throw new AnalyzeError(ErrorCode.AssignToConstant, nameToken.getStartPos());
+                        }
+                        Token assign = expect(TokenType.ASSIGN);
+                        numeral = analyse_expr(instructions);
+                        symbolEntry.getNumeral().assign(numeral, assign.getStartPos());
+                        instructions.add(new Instruction(symbolEntry.getOperationByLocation(), new Numeral(IdentType.INT, symbolEntry.getStackOffset())));
+                        instructions.add(new Instruction(Operation.push, numeral));
+                        instructions.add(new Instruction(Operation.store64));
+                        return new Numeral(IdentType.VOID, 0.0);
                     case L_PAREN:   // call_expr
-                        // TODO: 2020/11/18 查函数符号表
-                        // TODO: 2020/11/18 标准库中的函数在调用前不需要声明
+                        FunctionEntry functionEntry = getFunctionSymbol((String) nameToken.getValue(), nameToken.getStartPos());
                         expect(TokenType.L_PAREN);
-                        analyse_call_param_list();
+                        instructions.add(new Instruction(Operation.push, new Numeral(IdentType.INT, 0.0)));
+                        analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos());
                         expect(TokenType.R_PAREN);
+                        instructions.add(new Instruction(Operation.call, new Numeral(IdentType.INT, functionEntry.getStackOffset())));
+                        return new Numeral(IdentType.VOID, 0.0);
                     default:    // ident_expr
-                        // 伊布西龙
-                        // TODO: 2020/11/18 查符号表
+                        symbolEntry = getSymbol((String) nameToken.getValue(), nameToken.getStartPos());
+                        instructions.add(new Instruction(symbolEntry.getOperationByLocation(), new Numeral(IdentType.INT, symbolEntry.getStackOffset())));
+                        instructions.add(new Instruction(Operation.load64));
+                        return symbolEntry.getNumeral();
                 }
                 break;
             case L_PAREN:   // group_expr
                 expect(TokenType.L_PAREN);
-                analyse_expr();
+                numeral = analyse_expr(instructions);
                 expect(TokenType.R_PAREN);
-                break;
+                return numeral;
             case MINUS:     // negate_expr
-                expect(TokenType.MINUS);
-                analyse_expr();
-                break;
+                Token minus = expect(TokenType.MINUS);
+                numeral = analyse_expr(instructions);
+                numeral.reverse(minus.getStartPos());
+                Operation negative;
+                if (numeral.getIdentType() == IdentType.INT) {
+                    negative = Operation.negi;
+                } else if (numeral.getIdentType() == IdentType.DOUBLE) {
+                    negative = Operation.negf;
+                } else {
+                    throw new AnalyzeError(ErrorCode.TypeMismatch, minus.getStartPos());
+                }
+                instructions.add(new Instruction(negative));
+                return numeral;
             // TODO: 2020/11/18 字符串字面量 只会在 putstr 调用中出现，语义是对应的全局常量的编号
             case UINT_LITERAL:  // literal_expr
+                Token uint = expect(TokenType.UINT_LITERAL);
+                numeral = new Numeral(IdentType.INT, (int)uint.getValue());
+                instructions.add(new Instruction(Operation.push, numeral));
+                // TODO: 2020/12/5 把int赋给double了
+                return numeral;
             case DOUBLE_LITERAL:
+                Token DOUBLE_LITERAL = expect(TokenType.DOUBLE_LITERAL);
+                numeral = new Numeral(IdentType.DOUBLE, (double)DOUBLE_LITERAL.getValue());
+                instructions.add(new Instruction(Operation.push, numeral));
+                return numeral;
             case STRING_LITERAL:
             case CHAR_LITERAL:
                 // TODO: 2020/11/18 返回值
@@ -607,13 +645,43 @@ public final class Analyser {
         return 0;
     }
 
+
+
     // TODO: 2020/11/18
-    private void analyse_call_param_list() throws CompileError {
+    private void analyse_call_param_list(ArrayList<IdentType> function_param_list, ArrayList<Instruction> instructions, Pos curPos) throws CompileError {
         // TODO: 2020/11/18 判断与函数定义参数类型数量是否一致
-        analyse_expr();
-        while (nextIf(TokenType.COMMA) != null) {
-            analyse_expr();
+        ArrayList<TokenType> prefixOfExpr = new ArrayList<>();
+        prefixOfExpr.add(TokenType.IDENT);
+        prefixOfExpr.add(TokenType.L_PAREN);
+        prefixOfExpr.add(TokenType.MINUS);
+        prefixOfExpr.add(TokenType.UINT_LITERAL);
+        prefixOfExpr.add(TokenType.DOUBLE_LITERAL);
+        prefixOfExpr.add(TokenType.STRING_LITERAL);
+        prefixOfExpr.add(TokenType.CHAR_LITERAL);
+        int paramIndex = 0;
+        int lengthOfParamList = function_param_list.size();
+        if (prefixOfExpr.contains(peek().getTokenType())) {
+            paramIndex = analyse_call_param(function_param_list, instructions, curPos, paramIndex, lengthOfParamList);
         }
+        while (nextIf(TokenType.COMMA) != null) {
+            paramIndex = analyse_call_param(function_param_list, instructions, curPos, paramIndex, lengthOfParamList);
+        }
+        if (paramIndex < lengthOfParamList) {
+            throw new AnalyzeError(ErrorCode.TooShortParamList, curPos);
+        }
+    }
+
+    private int analyse_call_param(ArrayList<IdentType> function_param_list, ArrayList<Instruction> instructions, Pos curPos, int paramIndex, int lengthOfParamList) throws CompileError {
+        Numeral numeral = analyse_expr(instructions);
+        if (paramIndex >= lengthOfParamList) {
+            throw new AnalyzeError(ErrorCode.TooLongParamList, curPos);
+        }
+        if (function_param_list.get(paramIndex) != numeral.getIdentType()) {
+            throw new AnalyzeError(ErrorCode.TypeMismatch, curPos);
+        }
+        instructions.add(new Instruction(Operation.push, numeral));
+        paramIndex++;
+        return paramIndex;
     }
 
 //    private void analyseStatementSequence() throws CompileError {

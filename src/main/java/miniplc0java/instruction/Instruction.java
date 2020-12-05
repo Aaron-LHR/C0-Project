@@ -1,9 +1,8 @@
 package miniplc0java.instruction;
 
 import miniplc0java.tokenizer.IdentType;
-import miniplc0java.value.Numeral;
+import miniplc0java.Numeral.Numeral;
 
-import java.util.IdentityHashMap;
 import java.util.Objects;
 
 public class Instruction {
