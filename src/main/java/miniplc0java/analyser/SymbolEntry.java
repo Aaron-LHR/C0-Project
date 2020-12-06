@@ -87,4 +87,16 @@ public class SymbolEntry {
     public void setStackOffset(int stackOffset) {
         this.stackOffset = stackOffset;
     }
+
+    @Override
+    public String toString() {
+        return "SymbolEntry{" +
+                "isConstant=" + isConstant +
+                ", isInitialized=" + isInitialized +
+                ", stackOffset=" + stackOffset +
+                ", identType=" + identType +
+                ", level=" + level +
+                ", operation=" + operation +
+                '}';
+    }
 }

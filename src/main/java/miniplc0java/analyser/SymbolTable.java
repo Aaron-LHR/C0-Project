@@ -33,6 +33,20 @@ public class SymbolTable {
     public int getOffset() {
         return this.curPoint;
     }
+
+    public HashMap<String, SymbolEntry> getTable() {
+        return table;
+    }
+
+    @Override
+    public String toString() {
+        return "SymbolTable{" +
+                "table=" + table +
+                ", level=" + level +
+                ", basePoint=" + basePoint +
+                ", curPoint=" + curPoint +
+                '}';
+    }
 }
 
 enum IdentLocation {

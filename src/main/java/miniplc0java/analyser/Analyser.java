@@ -33,15 +33,17 @@ public final class Analyser {
 
 //    int[][] OPGMatrix = new int[12][12];
     HashMap<TokenType, Integer> operatorPriority = new HashMap<>();
-
-//     = {'+': 0, '*': 1, '(': 2, ')': 3, 'i': 4, '#': 5}
+    HashMap<TokenType, HashMap<IdentType, ArrayList<Operation>>> binaryOperation = new HashMap<>();
+    ArrayList<Integer> whileStack = new ArrayList<>();
+    ArrayList<ArrayList<Instruction>> breakStack = new ArrayList<>();
 
     public Analyser(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
-        buildOPGMatrix();
+        buildOperatorPriorityTable();
+        buildBinaryOperationTable();
     }
 
-    private void buildOPGMatrix() {
+    private void buildOperatorPriorityTable() {
         operatorPriority.put(TokenType.PRE_MINUS, 6);
         operatorPriority.put(TokenType.AS_KW, 5);
         operatorPriority.put(TokenType.MUL, 4);
@@ -59,11 +61,129 @@ public final class Analyser {
 //        OPGMatrix[operatorPriority.get(TokenType.PLUS)][operatorPriority.get(TokenType.PLUS)] = 1;  // >
     }
 
-    public List<Instruction> analyse() throws CompileError {
+    private void buildBinaryOperationTable() {
+        HashMap<IdentType, ArrayList<Operation>> intOrDouble = new HashMap<>();
+        ArrayList<Operation> operations = new ArrayList<>();
+
+        operations.add(Operation.add_i);
+        intOrDouble.put(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.add_f);
+        intOrDouble.put(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.PLUS, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.sub_i);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.sub_f);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.MINUS, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.mul_i);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.mul_f);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.MUL, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.div_i);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.div_f);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+//        intOrDouble.replace(IdentType.DOUBLE, Operation.div_u);
+        binaryOperation.put(TokenType.DIV, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.EQ, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.EQ, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.EQ, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.EQ, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.NEQ, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        operations.add(Operation.set_gt);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        operations.add(Operation.set_gt);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.GT, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        operations.add(Operation.set_lt);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        operations.add(Operation.set_lt);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.LT, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        operations.add(Operation.set_lt);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        operations.add(Operation.set_lt);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.GE, intOrDouble);
+
+        operations.clear();
+        operations.add(Operation.cmp_i);
+        operations.add(Operation.set_gt);
+        intOrDouble.replace(IdentType.INT, operations);
+        operations.clear();
+        operations.add(Operation.cmp_f);
+        operations.add(Operation.set_gt);
+        intOrDouble.replace(IdentType.DOUBLE, operations);
+        binaryOperation.put(TokenType.LE, intOrDouble);
+        }
+
+    public AnalyseResult analyse() throws CompileError {
         analyseProgram();
         // TODO: 2020/12/4 analyse时要返回：
         //1. 全局符号表
         //2. 函数表（函数的所有属性和指令集）
+        return new AnalyseResult(listOfSymbolTable.get(0).getTable(), functionSymbolTable);
     }
 
     /**
@@ -174,7 +294,7 @@ public final class Analyser {
                 return entry;
             }
         }
-        throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
+        throw new AnalyzeError(ErrorCode.VariableNotDeclared, curPos);
     }
 
     private boolean curIsGlobal() {
@@ -193,7 +313,7 @@ public final class Analyser {
     private FunctionEntry getFunctionSymbol(String name, Pos curPos) throws AnalyzeError {
         FunctionEntry functionEntry = functionSymbolTable.get(name);
         if (functionEntry == null) {
-            throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
+            throw new AnalyzeError(ErrorCode.FunctionNotDeclared, curPos);
         } else {
             return functionEntry;
         }
@@ -273,7 +393,7 @@ public final class Analyser {
                 analyse_let_decl_stmt(instructions);
                 break;
             case CONST_KW:
-                analyse_const_decl_stmt();
+                analyse_const_decl_stmt(instructions);
                 break;
             case FN_KW:
                 analyse_function();
@@ -282,7 +402,8 @@ public final class Analyser {
                 throw new AnalyzeError(ErrorCode.InvalidIdentType, peek().getStartPos());
         }
         expect(TokenType.EOF);
-        removeScope();
+        // 不销毁全局符号表
+//        removeScope();
     }
 
     private void analyse_let_decl_stmt(ArrayList<Instruction> instructions) throws CompileError {
@@ -387,8 +508,11 @@ public final class Analyser {
             default:
                 throw new AnalyzeError(ErrorCode.InvalidReturnValueType, type.getStartPos());
         }
-        analyse_block_stmt(instructions);
-
+        Boolean hasReturned = (identType == IdentType.VOID);
+        analyse_block_stmt(instructions, hasReturned);
+        if (!hasReturned) {
+            throw new AnalyzeError(ErrorCode.NoReturn, nameToken.getStartPos());
+        }
         // 加入符号表
         String name = (String) nameToken.getValue();
         addFunctionSymbol(name, function_param_list, identType, instructions, nameToken.getStartPos());
@@ -428,22 +552,22 @@ public final class Analyser {
         }
         // 加入符号表
         String name = (String) nameToken.getValue();
-        addSymbol(name, true, isConstant, nameToken.getStartPos(), identType, new Numeral(identType, 0.0));
+        addSymbol(name, true, isConstant, nameToken.getStartPos(), identType);
         function_param_list.add(identType);
     }
 
-    private void analyse_block_stmt(ArrayList<Instruction> instructions) throws CompileError {
+    private void analyse_block_stmt(ArrayList<Instruction> instructions, Boolean hasReturned) throws CompileError {
         addScope();
         expect(TokenType.L_BRACE);
         boolean stmtFlag = true;
         while (stmtFlag) {
-            stmtFlag = analyse_stmt(instructions);
+            stmtFlag = analyse_stmt(instructions, hasReturned);
         }
         expect(TokenType.R_BRACE);
         removeScope();
     }
 
-    private boolean analyse_stmt(ArrayList<Instruction> instructions) throws CompileError {
+    private boolean analyse_stmt(ArrayList<Instruction> instructions, Boolean hasReturned) throws CompileError {
         switch (peek().getTokenType()) {
             case IDENT:
             case L_PAREN:
@@ -457,22 +581,48 @@ public final class Analyser {
                 analyse_const_decl_stmt(instructions);
                 break;
             case IF_KW:
-                analyse_if_stmt();
+                Boolean ifHasReturned;
+                if (hasReturned) {
+                    ifHasReturned = Boolean.TRUE;
+                } else {
+                    ifHasReturned = Boolean.FALSE;
+                }
+                analyse_if_stmt(instructions, ifHasReturned);
+                if (!ifHasReturned) {
+                    throw new AnalyzeError(ErrorCode.NoReturn, peek().getStartPos());
+                }
                 break;
             case WHILE_KW:
-                analyse_while_stmt();
+                Boolean whileHasReturned;
+                if (hasReturned) {
+                    whileHasReturned = Boolean.TRUE;
+                } else {
+                    whileHasReturned = Boolean.FALSE;
+                }
+                this.whileStack.add(instructions.size());
+                this.breakStack.add(new ArrayList<>());
+                analyse_while_stmt(instructions, whileHasReturned);
+                if (!whileHasReturned) {
+                    throw new AnalyzeError(ErrorCode.NoReturn, peek().getStartPos());
+                }
+                for (Instruction breakInstruction: this.breakStack.get(this.breakStack.size() -1)) {
+                    breakInstruction.setValue(instructions.size() - breakInstruction.getIntValue() - 1);
+                }
+                this.breakStack.remove(this.breakStack.size() -1);
+                this.whileStack.remove(this.whileStack.size() - 1);
                 break;
             case BREAK_KW:
-                analyse_break_stmt();
+                analyse_break_stmt(instructions);
                 break;
             case CONTINUE_KW:
-                analyse_continue_stmt();
+                analyse_continue_stmt(instructions);
                 break;
             case RETURN_KW:
-                analyse_return_stmt();
+                analyse_return_stmt(instructions);
+                hasReturned = true;
                 break;
             case L_BRACE:
-                analyse_block_stmt(instructions);
+                analyse_block_stmt(instructions, hasReturned);
                 break;
             case SEMICOLON:
                 analyse_empty_stmt();
@@ -483,56 +633,90 @@ public final class Analyser {
         return true;
     }
 
-    // TODO: 最终值
     private void analyse_expr_stmt(ArrayList<Instruction> instructions) throws CompileError {
         // TODO: 2020/11/18 表达式如果有值，值将会被丢弃
         analyse_expr(instructions, TokenType.None);
         expect(TokenType.SEMICOLON);
     }
 
-    // TODO: if
-    // 比较运算符的运行结果是布尔类型。在 c0 中，我们并没有规定布尔类型的实际表示方式。在 navm 虚拟机中，所有非 0 的布尔值都被视为 true，而 0 被视为 false。
-    private void analyse_if_stmt() throws CompileError {
-        expect(TokenType.IF_KW);
-        analyse_expr();
-        analyse_block_stmt();
-        while (nextIf(TokenType.ELSE_KW) != null) {
-            if (peek().getTokenType() == TokenType.IF_KW) {
-                analyse_expr();
-                analyse_block_stmt();
+    private void analyse_if_stmt(ArrayList<Instruction> instructions, Boolean hasReturned) throws CompileError {
+        Token if_kw = expect(TokenType.IF_KW);
+        getJumpInstruction(instructions, if_kw, hasReturned);
+        while (check(TokenType.ELSE_KW)) {
+            Token ELSE_KW = expect(TokenType.ELSE_KW);
+            Boolean elseHasReturn;
+            if (hasReturned) {
+                elseHasReturn = Boolean.TRUE;
             } else {
-                analyse_block_stmt();
+                elseHasReturn = Boolean.FALSE;
+            }
+            if (peek().getTokenType() == TokenType.IF_KW) {
+                getJumpInstruction(instructions, if_kw, elseHasReturn);
+            } else {
+                analyse_block_stmt(instructions, elseHasReturn);
                 break;
+            }
+            if (!elseHasReturn) {
+                throw new AnalyzeError(ErrorCode.NoReturn, ELSE_KW.getStartPos());
             }
         }
     }
 
-    // TODO: while
-    // 比较运算符的运行结果是布尔类型。在 c0 中，我们并没有规定布尔类型的实际表示方式。在 navm 虚拟机中，所有非 0 的布尔值都被视为 true，而 0 被视为 false。
-    private void analyse_while_stmt() throws CompileError {
-        expect(TokenType.WHILE_KW);
-        analyse_expr();
-        analyse_block_stmt();
+    private void getJumpInstruction(ArrayList<Instruction> instructions, Token if_kw, Boolean hasReturn) throws CompileError {
+        IdentType exprRet = analyse_expr(instructions, TokenType.None);
+        Instruction jump;
+        switch (exprRet) {
+            case TRUE:
+                jump = new Instruction(Operation.br_false);
+                break;
+            case FALSE:
+                jump = new Instruction(Operation.br_true);
+                break;
+            default:
+                throw new AnalyzeError(ErrorCode.InvalidIfExpr, if_kw.getStartPos());
+        }
+        instructions.add(jump);
+        int jumpLength = instructions.size();
+        analyse_block_stmt(instructions, hasReturn);
+        jumpLength = instructions.size() - jumpLength - 1;
+        jump.setValue(jumpLength);
     }
 
-    // TODO: break
-    private void analyse_break_stmt() throws CompileError {
-        expect(TokenType.BREAK_KW);
+    private void analyse_while_stmt(ArrayList<Instruction> instructions, Boolean hasReturned) throws CompileError {
+        Token while_kw = expect(TokenType.WHILE_KW);
+        int jumpBackwardLength = instructions.size();
+        getJumpInstruction(instructions, while_kw, hasReturned);
+        jumpBackwardLength = - (instructions.size() - jumpBackwardLength + 2);
+        instructions.add(new Instruction(Operation.br, jumpBackwardLength));
+    }
+
+    private void analyse_break_stmt(ArrayList<Instruction> instructions) throws CompileError {
+        Token break_kw = expect(TokenType.BREAK_KW);
+        if (this.whileStack.size() == 0) {
+            throw new AnalyzeError(ErrorCode.BreakError, break_kw.getStartPos());
+        }
+        Instruction breakInstruction = new Instruction(Operation.br);
+        instructions.add(breakInstruction);
+        this.breakStack.get(this.breakStack.size() - 1).add(breakInstruction);
         expect(TokenType.SEMICOLON);
     }
 
-    // TODO: continue
-    private void analyse_continue_stmt() throws CompileError {
-        expect(TokenType.CONTINUE_KW);
+    private void analyse_continue_stmt(ArrayList<Instruction> instructions) throws CompileError {
+        Token continue_kw = expect(TokenType.CONTINUE_KW);
+        if (this.whileStack.size() == 0) {
+            throw new AnalyzeError(ErrorCode.ContinueError, continue_kw.getStartPos());
+        }
+        instructions.add(new Instruction(Operation.br, - (instructions.size() - this.whileStack.get(this.whileStack.size() - 1) + 2)));
         expect(TokenType.SEMICOLON);
     }
 
     // TODO: return
-    private void analyse_return_stmt() throws CompileError {
+    private void analyse_return_stmt(ArrayList<Instruction> instructions) throws CompileError {
         expect(TokenType.RETURN_KW);
-        if (peek().getTokenType() == TokenType.IDENT || peek().getTokenType() == TokenType.L_PAREN || peek().getTokenType() == TokenType.MINUS) {
-            analyse_expr();
+        if (peek().getTokenType() == TokenType.IDENT || peek().getTokenType() == TokenType.L_PAREN || peek().getTokenType() == TokenType.MINUS || peek().getTokenType() == TokenType.UINT_LITERAL || peek().getTokenType() == TokenType.DOUBLE_LITERAL || peek().getTokenType() == TokenType.STRING_LITERAL || peek().getTokenType() == TokenType.CHAR_LITERAL) {
+            analyse_expr(instructions, TokenType.None);
         }
+        instructions.add(new Instruction(Operation.ret));
         expect(TokenType.SEMICOLON);
     }
 
@@ -540,7 +724,6 @@ public final class Analyser {
         expect(TokenType.SEMICOLON);
     }
 
-    // TODO: 2020/11/18 提示：对于 运算符表达式 operator_expr、取反表达式 negate_expr 和类型转换表达式 as_expr 可以使用局部的算符优先文法进行分析
     private IdentType analyse_expr(ArrayList<Instruction> instructions, TokenType stackTop) throws CompileError {
         SymbolEntry symbolEntry;
         IdentType exprRet;  // 下一层递归的返回值
@@ -594,9 +777,9 @@ public final class Analyser {
                 result = analyse_expr(instructions, TokenType.PRE_MINUS);
                 Operation negative;
                 if (result == IdentType.INT) {
-                    negative = Operation.negi;
+                    negative = Operation.neg_i;
                 } else if (result == IdentType.DOUBLE) {
-                    negative = Operation.negf;
+                    negative = Operation.neg_f;
                 } else {
                     throw new AnalyzeError(ErrorCode.TypeMisMatch, minus.getStartPos());
                 }
@@ -633,7 +816,6 @@ public final class Analyser {
             default:
                 throw new AnalyzeError(ErrorCode.InvalidExpr, peek().getStartPos());
         }
-        // TODO: 2020/11/18 可能要用哈希表存操作符字符串
         Set<TokenType> binary_operator = new HashSet<>();
         binary_operator.add(TokenType.PLUS);
         binary_operator.add(TokenType.MINUS);
@@ -647,20 +829,68 @@ public final class Analyser {
         binary_operator.add(TokenType.GE);
         while (true) {
             if (binary_operator.contains(peek().getTokenType())) {  // binary_operator
-                // TODO: 2020/11/18 识别操作符
-                // TODO: 2020/11/18 每个运算符的两侧必须是相同类型的数据
+                if (operatorPriority.get(peek().getTokenType()) <= operatorPriority.get(stackTop)) {
+                    return result;
+                }
                 var operator = next();
                 exprRet = analyse_expr(instructions, operator.getTokenType());
                 checkTypeMatch(result, exprRet, operator.getStartPos());
+                switch (operator.getTokenType()) {
+                    case PLUS:
+                    case MINUS:
+                    case MUL:
+                    case DIV:
+                        for (Operation operation: binaryOperation.get(operator.getTokenType()).get(result)) {
+                            instructions.add(new Instruction(operation));
+                        }
+                        break;
+                    case EQ:
+                    case GE:
+                    case LE:
+                        for (Operation operation: binaryOperation.get(operator.getTokenType()).get(result)) {
+                            instructions.add(new Instruction(operation));
+                        }
+                        result = IdentType.FALSE;
+                        break;
+                    case NEQ:
+                    case LT:
+                    case GT:
+                        for (Operation operation: binaryOperation.get(operator.getTokenType()).get(result)) {
+                            instructions.add(new Instruction(operation));
+                        }
+                        result = IdentType.TRUE;
+                        break;
+                    default:
+                        // not reach
+                        throw new AnalyzeError(ErrorCode.InvalidBinaryOperator, operator.getStartPos());
+                }
             } else if (peek().getTokenType() == TokenType.AS_KW) {  // as_expr
+                if (operatorPriority.get(peek().getTokenType()) <= operatorPriority.get(stackTop)) {
+                    return result;
+                }
+                var as = expect(TokenType.AS_KW);
                 var type = expect(TokenType.IDENT);
                 // TODO: 2020/11/18 强制类型转换
                 switch ((String) type.getValue()) {
                     case "int":
-
+                        if (result == IdentType.INT) {
+                            break;
+                        } else if (result == IdentType.DOUBLE) {
+                            instructions.add(new Instruction(Operation.ftoi));
+                            result = IdentType.INT;
+                        } else {
+                            throw new AnalyzeError(ErrorCode.InvalidAsExpr, as.getStartPos());
+                        }
                         break;
                     case "double":
-
+                        if (result == IdentType.INT) {
+                            instructions.add(new Instruction(Operation.itof));
+                            result = IdentType.DOUBLE;
+                        } else if (result == IdentType.DOUBLE) {
+                            break;
+                        } else {
+                            throw new AnalyzeError(ErrorCode.InvalidAsExpr, as.getStartPos());
+                        }
                         break;
                     default:
                         throw new AnalyzeError(ErrorCode.InvalidIdentType, type.getStartPos());
@@ -669,8 +899,7 @@ public final class Analyser {
                 break;
             }
         }
-        // TODO: 2020/12/2 返回值
-        return numeral;
+        return result;
     }
 
 
@@ -700,14 +929,13 @@ public final class Analyser {
     }
 
     private int analyse_call_param(ArrayList<IdentType> function_param_list, ArrayList<Instruction> instructions, Pos curPos, int paramIndex, int lengthOfParamList) throws CompileError {
-        Numeral numeral = analyse_expr(instructions);
+        IdentType exprRet = analyse_expr(instructions, TokenType.None);
         if (paramIndex >= lengthOfParamList) {
             throw new AnalyzeError(ErrorCode.TooLongParamList, curPos);
         }
-        if (function_param_list.get(paramIndex) != numeral.getIdentType()) {
+        if (function_param_list.get(paramIndex) != exprRet) {
             throw new AnalyzeError(ErrorCode.TypeMisMatch, curPos);
         }
-        instructions.add(new Instruction(Operation.push, numeral));
         paramIndex++;
         return paramIndex;
     }

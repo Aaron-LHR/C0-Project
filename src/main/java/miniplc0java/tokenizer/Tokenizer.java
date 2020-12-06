@@ -85,16 +85,17 @@ public class Tokenizer {
         Pos end = it.currentPos();
         if (isDouble) {
             try {
-                return new Token(TokenType.UINT_LITERAL, Integer.parseInt(result), start, end);
-            } catch (NumberFormatException e) {
-                throw new TokenizeError(ErrorCode.IntegerOverflow ,it.currentPos());
-            }
-        } else {
-            try {
                 return new Token(TokenType.DOUBLE_LITERAL, Double.parseDouble(result), start, end);
             } catch (NumberFormatException e) {
                 throw new TokenizeError(ErrorCode.DoubleOverflow ,it.currentPos());
             }
+        } else {
+            try {
+                return new Token(TokenType.UINT_LITERAL, Integer.parseInt(result), start, end);
+            } catch (NumberFormatException e) {
+                throw new TokenizeError(ErrorCode.IntegerOverflow ,it.currentPos());
+            }
+
         }
     }
 

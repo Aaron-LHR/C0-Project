@@ -4,7 +4,9 @@ public enum  IdentType {
     INT,
     VOID,
     DOUBLE,
-    STRING_LITERAL
+    STRING_LITERAL,
+    TRUE,
+    FALSE
     ;
 
     @Override

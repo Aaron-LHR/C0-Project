@@ -81,19 +81,45 @@ public class Instruction {
         this.identType = IdentType.STRING_LITERAL;
     }
 
+    public int getIntValue() {
+        return intValue;
+    }
+
     @Override
     public String toString() {
         switch (this.opt) {
-            case ADD:
-            case DIV:
-            case ILL:
-            case MUL:
-            case SUB:
-            case WRT:
+            case nop:
+            case pop:
+            case load64:
+            case store64:
+            case add_i:
+            case add_f:
+            case sub_i:
+            case sub_f:
+            case mul_i:
+            case mul_f:
+            case div_i:
+            case div_f:
+            case div_u:
+            case cmp_i:
+            case cmp_u:
+            case cmp_f:
+            case neg_i:
+            case neg_f:
+            case set_lt:
+            case set_gt:
+            case ftoi:
+            case itof:
+            case ret:
                 return String.format("%s", this.opt);
-            case LIT:
-            case LOD:
-            case STO:
+            case push:
+            case loca:
+            case arga:
+            case globa:
+            case call:
+            case br:
+            case br_false:
+            case br_true:
                 return String.format("%s %s", this.opt, this.intValue);
             default:
                 return "ILL";

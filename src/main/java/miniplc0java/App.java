@@ -6,10 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
+import miniplc0java.analyser.AnalyseResult;
 import miniplc0java.analyser.Analyser;
 import miniplc0java.error.CompileError;
 import miniplc0java.instruction.Instruction;
@@ -24,6 +23,7 @@ import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.checkerframework.checker.units.qual.A;
 
 public class App {
     public static void main(String[] args) throws CompileError {
@@ -95,18 +95,18 @@ public class App {
         } else if (result.getBoolean("analyse")) {
             // analyze
             var analyzer = new Analyser(tokenizer);
+            AnalyseResult analyseResult;
             List<Instruction> instructions;
             try {
-                instructions = analyzer.analyse();
+                analyseResult = analyzer.analyse();
             } catch (Exception e) {
                 // 遇到错误不输出，直接退出
                 System.err.println(e);
                 System.exit(0);
                 return;
             }
-            for (Instruction instruction : instructions) {
-                output.println(instruction.toString());
-            }
+            output.println(analyseResult);
+
         } else {
             System.err.println("Please specify either '--analyse' or '--tokenize'.");
             System.exit(3);
