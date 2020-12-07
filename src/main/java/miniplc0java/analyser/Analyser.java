@@ -36,6 +36,8 @@ public final class Analyser {
     HashMap<TokenType, HashMap<IdentType, ArrayList<Operation>>> binaryOperation = new HashMap<>();
     ArrayList<Integer> whileStack = new ArrayList<>();
     ArrayList<ArrayList<Instruction>> breakStack = new ArrayList<>();
+    String curFunctionName;
+    ArrayList<SymbolTable> curFunctionSymbolTable = new ArrayList<>();
 
     public Analyser(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
@@ -282,6 +284,15 @@ public final class Analyser {
         if (symbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
+            //            if (this.listOfSymbolTable.size() > 2 && this.listOfSymbolTable.size() > maxSize) {
+//                maxSize = this.listOfSymbolTable.size();
+//                ArrayList<SymbolTable> localTable = (ArrayList<SymbolTable>) this.listOfSymbolTable.clone();
+//                localTable.remove(0);
+//                localTable.remove(1);
+//                addFunctionLocalTable(localTable, curPos);
+//            } else {
+//
+//            }
             return symbolTable.put(name, isInitialized, isConstant, identType);
         }
     }
@@ -301,12 +312,12 @@ public final class Analyser {
         return this.listOfSymbolTable.size() == 1;
     }
 
-    private void addFunctionSymbol(String name, ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, int NumOfLocal, Pos curPos) throws AnalyzeError {
+    private void addFunctionSymbol(String name, ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, ArrayList<SymbolTable> listOfSymbolTable, Pos curPos) throws AnalyzeError {
         SymbolTable globalSymbolTable = this.listOfSymbolTable.get(0);
         if (globalSymbolTable.get(name) != null || functionSymbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
-            this.functionSymbolTable.put(name, new FunctionEntry(function_param_list, returnValueType, instructions, NumOfLocal, getNextVariableOffset()));
+            this.functionSymbolTable.put(name, new FunctionEntry(function_param_list, returnValueType, instructions, listOfSymbolTable, getNextVariableOffset()));
         }
     }
 
@@ -319,7 +330,17 @@ public final class Analyser {
         }
     }
 
-    private void addScope() {
+    private void addFunctionLocalTable(SymbolTable symbolTable, Pos curPos) throws AnalyzeError {
+//        FunctionEntry functionEntry = functionSymbolTable.get(this.curFunctionName);
+//        if (functionEntry == null) {
+//            throw new AnalyzeError(ErrorCode.FunctionNotDeclared, curPos);
+//        } else {
+//            functionEntry.addSymbolTable(symbolTable);
+//        }
+        this.curFunctionSymbolTable.add(symbolTable);
+    }
+
+    private SymbolTable addScope() {
         int level, basePoint;
         if (listOfSymbolTable.size() == 0) {
             level = 0;
@@ -331,6 +352,7 @@ public final class Analyser {
         }
         SymbolTable symbolTable = new SymbolTable(level, basePoint);
         listOfSymbolTable.add(symbolTable);
+        return symbolTable;
     }
 
     private void removeScope() {
@@ -381,30 +403,53 @@ public final class Analyser {
         return entry.isConstant();
     }
 
+    @SuppressWarnings("unchecked")
     private void analyseProgram() throws CompileError {
         // 程序 -> 'begin' 主过程 'end'
         // 示例函数，示例如何调用子程序
         addScope();
         ArrayList<Instruction> instructions = new ArrayList<>();
         // TODO: 2020/12/4 添加标准库函数
-        switch (peek().getTokenType()) {
-            case LET_KW:
-                analyse_let_decl_stmt(instructions);
-                break;
-            case CONST_KW:
-                analyse_const_decl_stmt(instructions);
-                break;
-            case FN_KW:
-                analyse_function();
-                break;
-            default:
-                throw new AnalyzeError(ErrorCode.InvalidIdentType, peek().getStartPos());
+        while (true) {
+            switch (peek().getTokenType()) {
+                case LET_KW:
+                    analyse_let_decl_stmt(instructions);
+                    break;
+                case CONST_KW:
+                    analyse_const_decl_stmt(instructions);
+                    break;
+                case FN_KW:
+                    analyse_function();
+                    break;
+                default:
+//                    throw new AnalyzeError(ErrorCode.InvalidIdentType, peek().getStartPos());
+                    expect(TokenType.EOF);
+//                    addFunctionLocalTable(this.listOfSymbolTable.get(0), new Pos(0, 0));
+                    this.curFunctionSymbolTable.clear();
+                    this.curFunctionSymbolTable.add(this.listOfSymbolTable.get(0));
+                    addFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, instructions, (ArrayList<SymbolTable>) this.curFunctionSymbolTable.clone(), new Pos(0, 0));
+                    return;
+            }
         }
-        expect(TokenType.EOF);
-        addFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, instructions, listOfSymbolTable.get(0).size(), new Pos(0, 0));
         // 不销毁全局符号表
 //        removeScope();
     }
+
+//    private void analyseItem(ArrayList<Instruction> instructions) throws CompileError {
+//        switch (peek().getTokenType()) {
+//            case LET_KW:
+//                analyse_let_decl_stmt(instructions);
+//                break;
+//            case CONST_KW:
+//                analyse_const_decl_stmt(instructions);
+//                break;
+//            case FN_KW:
+//                analyse_function();
+//                break;
+//            default:
+//                throw new AnalyzeError(ErrorCode.InvalidIdentType, peek().getStartPos());
+//        }
+//    }
 
     private void analyse_let_decl_stmt(ArrayList<Instruction> instructions) throws CompileError {
         expect(TokenType.LET_KW);
@@ -484,8 +529,10 @@ public final class Analyser {
         instructions.add(new Instruction(Operation.store64));
     }
 
+    @SuppressWarnings("unchecked")
     private void analyse_function() throws CompileError {
         addScope();
+        this.curFunctionSymbolTable.clear();
         ArrayList<Instruction> instructions = new ArrayList<>();
         expect(TokenType.FN_KW);
         var nameToken = expect(TokenType.IDENT);
@@ -514,7 +561,7 @@ public final class Analyser {
         }
         // 加入符号表
         String name = (String) nameToken.getValue();
-        addFunctionSymbol(name, function_param_list, identType, instructions, listOfSymbolTable.get(listOfSymbolTable.size() - 1).size(), nameToken.getStartPos());
+        addFunctionSymbol(name, function_param_list, identType, instructions, (ArrayList<SymbolTable>) this.curFunctionSymbolTable.clone(), nameToken.getStartPos());
 
         removeScope();
     }
@@ -556,8 +603,9 @@ public final class Analyser {
     }
 
     private boolean analyse_block_stmt(ArrayList<Instruction> instructions, boolean hasReturned) throws CompileError {
-        addScope();
-        expect(TokenType.L_BRACE);
+        SymbolTable symbolTable = addScope();
+        Token L_BRACE = expect(TokenType.L_BRACE);
+        addFunctionLocalTable(symbolTable, L_BRACE.getStartPos());
         AnalyseStmtResult analyseStmtResult = new AnalyseStmtResult(true, hasReturned);
         while (analyseStmtResult.stmtFlag) {
             analyseStmtResult = analyse_stmt(instructions, analyseStmtResult.hasReturned);
@@ -585,7 +633,7 @@ public final class Analyser {
     }
 
     private AnalyseStmtResult analyse_stmt(ArrayList<Instruction> instructions, boolean hasReturned) throws CompileError {
-        AnalyseStmtResult analyseStmtResult = new AnalyseStmtResult(hasReturned);
+        AnalyseStmtResult analyseStmtResult = new AnalyseStmtResult(true, hasReturned);
         switch (peek().getTokenType()) {
             case IDENT:
             case L_PAREN:
@@ -628,15 +676,15 @@ public final class Analyser {
                 analyseStmtResult.hasReturned = true;
                 break;
             case L_BRACE:
-                analyse_block_stmt(instructions, hasReturned);
+                analyseStmtResult.hasReturned = analyse_block_stmt(instructions, hasReturned);
                 break;
             case SEMICOLON:
                 analyse_empty_stmt();
                 break;
             default:
                 analyseStmtResult.stmtFlag = false;
+                break;
         }
-        analyseStmtResult.stmtFlag = true;
         return analyseStmtResult;
     }
 

@@ -25,9 +25,15 @@ public class AnalyseResult {
 
     @Override
     public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String name: functionSymbolTable.keySet()) {
+            stringBuilder.append("functionName:").append(name).append("\n");
+            stringBuilder.append(functionSymbolTable.get(name)).append("\n");
+            stringBuilder.append("\n");
+        }
         return "全局符号表为：\n" +
                 symbolTable + "\n" +
                 "函数表为：\n" +
-                functionSymbolTable;
+                stringBuilder.toString();
     }
 }

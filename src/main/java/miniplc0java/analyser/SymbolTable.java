@@ -23,6 +23,7 @@ public class SymbolTable {
 
     public int put(String name, boolean isInitialized, boolean isConstant, IdentType identType) {
         this.table.put(name, new SymbolEntry(isConstant, isInitialized, this.curPoint, identType, this.level));
+//        System.out.println(table);
         return this.curPoint++;
     }
 

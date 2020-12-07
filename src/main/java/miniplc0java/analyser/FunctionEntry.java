@@ -9,7 +9,7 @@ public class FunctionEntry {
     private ArrayList<IdentType> function_param_list;
     private IdentType returnValueType;
     private ArrayList<Instruction> instructions;
-    private int NumOfLocal;
+    private ArrayList<SymbolTable> listOfSymbolTable;
     private int stackOffset;
 
     /**
@@ -17,12 +17,16 @@ public class FunctionEntry {
      * @param returnValueType:
      * @param stackOffset:
      */
-    public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, int NumOfLocal, int stackOffset) {
+    public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, ArrayList<SymbolTable> functionSymbolTable, int stackOffset) {
         this.function_param_list = function_param_list;
         this.returnValueType = returnValueType;
         this.instructions = instructions;
-        this.NumOfLocal = NumOfLocal;
+        this.listOfSymbolTable = functionSymbolTable;
         this.stackOffset = stackOffset;
+    }
+
+    public void addSymbolTable(SymbolTable symbolTable) {
+        this.listOfSymbolTable.add(symbolTable);
     }
 
     public ArrayList<Instruction> getInstructions() {
@@ -49,5 +53,18 @@ public class FunctionEntry {
      */
     public void setStackOffset(int stackOffset) {
         this.stackOffset = stackOffset;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (SymbolTable symbolTable: listOfSymbolTable) {
+            stringBuilder.append(symbolTable).append("\n");
+        }
+        return  "function_param_list=" + function_param_list +
+                "\nreturnValueType=" + returnValueType +
+                "\ninstructions=" + instructions +
+                "\nlistOfSymbolTable=\n    " + stringBuilder.toString() +
+                "stackOffset=" + stackOffset;
     }
 }
