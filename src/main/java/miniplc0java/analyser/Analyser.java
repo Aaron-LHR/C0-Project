@@ -321,12 +321,12 @@ public final class Analyser {
         }
     }
 
-    private void addFunctionSymbol(String name, Pos curPos) throws AnalyzeError {
+    private void addFunctionSymbol(String name, ArrayList<IdentType> function_param_list, IdentType returnValueType, Pos curPos) throws AnalyzeError {
         SymbolTable globalSymbolTable = this.listOfSymbolTable.get(0);
         if (globalSymbolTable.get(name) != null || functionSymbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
-            this.functionSymbolTable.put(name, new FunctionEntry());
+            this.functionSymbolTable.put(name, new FunctionEntry(function_param_list, returnValueType));
         }
     }
 
@@ -554,8 +554,6 @@ public final class Analyser {
         ArrayList<Instruction> instructions = new ArrayList<>();
         expect(TokenType.FN_KW);
         var nameToken = expect(TokenType.IDENT);
-        String name = (String) nameToken.getValue();
-        addFunctionSymbol(name, nameToken.getStartPos());
         expect(TokenType.L_PAREN);
         ArrayList<IdentType> function_param_list = analyse_function_param_list();
         expect(TokenType.R_PAREN);
@@ -575,6 +573,8 @@ public final class Analyser {
             default:
                 throw new AnalyzeError(ErrorCode.InvalidReturnValueType, type.getStartPos());
         }
+        String name = (String) nameToken.getValue();
+        addFunctionSymbol(name, function_param_list, identType, nameToken.getStartPos());
         boolean hasReturned = analyse_block_stmt(instructions, (identType == IdentType.VOID));
         if (!hasReturned) {
             throw new AnalyzeError(ErrorCode.NoReturn, nameToken.getStartPos());

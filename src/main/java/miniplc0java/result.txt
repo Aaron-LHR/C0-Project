@@ -21,9 +21,9 @@ stackOffset=1
 functionName:fib
 function_param_list=[int]
 returnValueType=int
-instructions=[arga 0, load64, push 1, cmp_f, set_gt, br_true 1, push 1, ret, push 0, ret]
+instructions=[arga 0, load64, push 1, cmp_f, set_gt, br_true 1, push 1, ret, loca 1, push 0, arga 0, load64, push 1, cmp_f, set_gt, call 0, store64, loca 1, loca 1, load64, push 0, arga 0, load64, push 2, cmp_f, set_gt, call 0, cmp_f, set_gt, store64, push 0, ret]
 listOfSymbolTable=
-    SymbolTable{table={}, level=2, basePoint=1, curPoint=1}
+    SymbolTable{table={result=SymbolEntry{isConstant=false, isInitialized=true, stackOffset=1, identType=int, level=2, operation=loca}}, level=2, basePoint=1, curPoint=2}
 SymbolTable{table={}, level=3, basePoint=1, curPoint=1}
 stackOffset=0
 
