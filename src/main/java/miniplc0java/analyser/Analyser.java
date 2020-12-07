@@ -84,111 +84,111 @@ public final class Analyser {
 
         operations.add(Operation.add_i);
         intOrDouble.put(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.add_f);
         intOrDouble.put(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.PLUS, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.sub_i);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.sub_f);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.MINUS, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.mul_i);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.mul_f);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.MUL, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.div_i);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.div_f);
         intOrDouble.replace(IdentType.DOUBLE, operations);
 //        intOrDouble.replace(IdentType.DOUBLE, Operation.div_u);
         binaryOperation.put(TokenType.DIV, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.EQ, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.EQ, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.EQ, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.EQ, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.NEQ, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         operations.add(Operation.set_gt);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         operations.add(Operation.set_gt);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.GT, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         operations.add(Operation.set_lt);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         operations.add(Operation.set_lt);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.LT, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         operations.add(Operation.set_lt);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         operations.add(Operation.set_lt);
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.GE, intOrDouble);
 
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         operations.add(Operation.set_gt);
         intOrDouble.replace(IdentType.INT, operations);
-        operations.clear();
+        operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         operations.add(Operation.set_gt);
         intOrDouble.replace(IdentType.DOUBLE, operations);
