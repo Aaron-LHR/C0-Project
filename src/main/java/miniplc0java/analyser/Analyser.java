@@ -321,6 +321,24 @@ public final class Analyser {
         }
     }
 
+    private void addFunctionSymbol(String name, Pos curPos) throws AnalyzeError {
+        SymbolTable globalSymbolTable = this.listOfSymbolTable.get(0);
+        if (globalSymbolTable.get(name) != null || functionSymbolTable.get(name) != null) {
+            throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
+        } else {
+            this.functionSymbolTable.put(name, new FunctionEntry());
+        }
+    }
+
+    private void setFunctionSymbol(String name, ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, ArrayList<SymbolTable> listOfSymbolTable, Pos curPos) throws AnalyzeError {
+        SymbolTable globalSymbolTable = this.listOfSymbolTable.get(0);
+        if (functionSymbolTable.get(name) == null) {
+            throw new AnalyzeError(ErrorCode.FunctionNotDeclared, curPos);
+        } else {
+            this.functionSymbolTable.replace(name, new FunctionEntry(function_param_list, returnValueType, instructions, listOfSymbolTable, getNextVariableOffset()));
+        }
+    }
+
     private FunctionEntry getFunctionSymbol(String name, Pos curPos) throws AnalyzeError {
         FunctionEntry functionEntry = functionSymbolTable.get(name);
         if (functionEntry == null) {
@@ -536,6 +554,8 @@ public final class Analyser {
         ArrayList<Instruction> instructions = new ArrayList<>();
         expect(TokenType.FN_KW);
         var nameToken = expect(TokenType.IDENT);
+        String name = (String) nameToken.getValue();
+        addFunctionSymbol(name, nameToken.getStartPos());
         expect(TokenType.L_PAREN);
         ArrayList<IdentType> function_param_list = analyse_function_param_list();
         expect(TokenType.R_PAREN);
@@ -560,8 +580,8 @@ public final class Analyser {
             throw new AnalyzeError(ErrorCode.NoReturn, nameToken.getStartPos());
         }
         // 加入符号表
-        String name = (String) nameToken.getValue();
-        addFunctionSymbol(name, function_param_list, identType, instructions, (ArrayList<SymbolTable>) this.curFunctionSymbolTable.clone(), nameToken.getStartPos());
+
+        setFunctionSymbol(name, function_param_list, identType, instructions, (ArrayList<SymbolTable>) this.curFunctionSymbolTable.clone(), nameToken.getStartPos());
 
         removeScope();
     }

@@ -25,6 +25,9 @@ public class FunctionEntry {
         this.stackOffset = stackOffset;
     }
 
+    public FunctionEntry() {
+    }
+
     public void addSymbolTable(SymbolTable symbolTable) {
         this.listOfSymbolTable.add(symbolTable);
     }
