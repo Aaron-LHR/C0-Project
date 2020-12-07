@@ -31,6 +31,9 @@ public class FunctionEntry {
     public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType) {
         this.function_param_list = function_param_list;
         this.returnValueType = returnValueType;
+        this.instructions = new ArrayList<>();
+        this.listOfSymbolTable = new ArrayList<>();
+        this.stackOffset = 0;
     }
 
     public void addSymbolTable(SymbolTable symbolTable) {

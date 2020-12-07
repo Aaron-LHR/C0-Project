@@ -111,6 +111,14 @@ public class Instruction {
             case ftoi:
             case itof:
             case ret:
+            case scan_c:
+            case scan_f:
+            case scan_i:
+            case print_c:
+            case print_f:
+            case print_i:
+            case print_s:
+            case println:
                 return String.format("%s", this.opt);
             case push:
             case loca:

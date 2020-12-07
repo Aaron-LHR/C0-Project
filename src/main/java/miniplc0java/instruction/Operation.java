@@ -7,5 +7,6 @@ public enum Operation {
     set_lt, set_gt,
     br, br_false, br_true,
     ftoi, itof,
-    ret
+    ret,
+    scan_i, scan_c, scan_f, print_i, print_c, print_f, print_s, println
 }

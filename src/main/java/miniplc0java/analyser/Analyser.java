@@ -38,11 +38,26 @@ public final class Analyser {
     ArrayList<ArrayList<Instruction>> breakStack = new ArrayList<>();
     String curFunctionName;
     ArrayList<SymbolTable> curFunctionSymbolTable = new ArrayList<>();
+    HashMap<String, Instruction> standardFunctionInstruction = new HashMap<>();
 
-    public Analyser(Tokenizer tokenizer) {
+    public Analyser(Tokenizer tokenizer) throws AnalyzeError {
         this.tokenizer = tokenizer;
         buildOperatorPriorityTable();
         buildBinaryOperationTable();
+        buildStandardFunctionInstruction();
+    }
+
+    private void buildStandardFunctionLibrary() throws AnalyzeError {
+        this.curFunctionSymbolTable.clear();
+        this.curFunctionSymbolTable.add(this.listOfSymbolTable.get(0));
+        addFunctionSymbol("getint", new ArrayList<IdentType>(), IdentType.INT, new Pos(0, 0));
+        addFunctionSymbol("getdouble", new ArrayList<IdentType>(), IdentType.DOUBLE, new Pos(0, 0));
+        addFunctionSymbol("getchar", new ArrayList<IdentType>(), IdentType.INT, new Pos(0, 0));
+        addFunctionSymbol("putint", new ArrayList<IdentType>(Collections.singletonList(IdentType.INT)), IdentType.VOID, new Pos(0, 0));
+        addFunctionSymbol("putdouble", new ArrayList<IdentType>(Collections.singletonList(IdentType.DOUBLE)), IdentType.VOID, new Pos(0, 0));
+        addFunctionSymbol("putchar", new ArrayList<IdentType>(Collections.singletonList(IdentType.INT)), IdentType.VOID, new Pos(0, 0));
+        addFunctionSymbol("putstr", new ArrayList<IdentType>(Collections.singletonList(IdentType.INT)), IdentType.VOID, new Pos(0, 0));
+        addFunctionSymbol("putln", new ArrayList<IdentType>(), IdentType.VOID, new Pos(0, 0));
     }
 
     private void buildOperatorPriorityTable() {
@@ -179,6 +194,17 @@ public final class Analyser {
         intOrDouble.replace(IdentType.DOUBLE, operations);
         binaryOperation.put(TokenType.LE, intOrDouble);
         }
+
+    private void buildStandardFunctionInstruction() {
+        standardFunctionInstruction.put("getint", new Instruction(Operation.scan_i));
+        standardFunctionInstruction.put("getdouble", new Instruction(Operation.scan_f));
+        standardFunctionInstruction.put("getchar", new Instruction(Operation.scan_c));
+        standardFunctionInstruction.put("putint", new Instruction(Operation.print_i));
+        standardFunctionInstruction.put("putdouble", new Instruction(Operation.print_f));
+        standardFunctionInstruction.put("putchar", new Instruction(Operation.print_c));
+        standardFunctionInstruction.put("putstr", new Instruction(Operation.print_s));
+        standardFunctionInstruction.put("putln", new Instruction(Operation.println));
+    }
 
     public AnalyseResult analyse() throws CompileError {
         analyseProgram();
@@ -427,6 +453,7 @@ public final class Analyser {
         // 示例函数，示例如何调用子程序
         addScope();
         ArrayList<Instruction> instructions = new ArrayList<>();
+        buildStandardFunctionLibrary();
         // TODO: 2020/12/4 添加标准库函数
         while (true) {
             switch (peek().getTokenType()) {
@@ -826,12 +853,18 @@ public final class Analyser {
                         result = IdentType.VOID;
                         break;
                     case L_PAREN:   // call_expr
-                        FunctionEntry functionEntry = getFunctionSymbol((String) nameToken.getValue(), nameToken.getStartPos());
+                        String functionName= (String) nameToken.getValue();
+                        FunctionEntry functionEntry = getFunctionSymbol(functionName, nameToken.getStartPos());
                         expect(TokenType.L_PAREN);
-                        instructions.add(new Instruction(Operation.push));  // 压返回值
-                        analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
+                        if (standardFunctionInstruction.containsKey(functionName)) {
+                            analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
+                            instructions.add(standardFunctionInstruction.get(functionName));
+                        } else {
+                            instructions.add(new Instruction(Operation.push));  // 压返回值
+                            analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
+                            instructions.add(new Instruction(Operation.call, functionEntry.getStackOffset()));
+                        }
                         expect(TokenType.R_PAREN);
-                        instructions.add(new Instruction(Operation.call, functionEntry.getStackOffset()));
                         result = functionEntry.getReturnValueType();
                         break;
                     default:    // ident_expr
