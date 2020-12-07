@@ -38,6 +38,10 @@ public class SymbolTable {
         return table;
     }
 
+    public int size() {
+        return this.table.size();
+    }
+
     @Override
     public String toString() {
         return "SymbolTable{" +
