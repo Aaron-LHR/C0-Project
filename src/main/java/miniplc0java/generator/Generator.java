@@ -1,0 +1,41 @@
+package miniplc0java.generator;
+
+import miniplc0java.analyser.AnalyseResult;
+import miniplc0java.analyser.FunctionEntry;
+import miniplc0java.analyser.SymbolEntry;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Generator {
+    private HashMap<String, SymbolEntry> symbolTable;
+    private ArrayList<Map.Entry<String, SymbolEntry>> symbolList;
+    private HashMap<String, FunctionEntry> functionSymbolTable;
+    private ArrayList<Map.Entry<String, FunctionEntry>> functionList;
+    String magic = "72303b3e";
+    String version = "00000001";
+    String globals_count;
+    ArrayList<Global> globals = new ArrayList<>();
+    String functions_count;
+    ArrayList<Global> globals = new ArrayList<>();
+
+    public Generator(AnalyseResult analyseResult) {
+        this.symbolTable = analyseResult.getSymbolTable();
+        this.functionSymbolTable = analyseResult.getFunctionSymbolTable();
+        symbolList = new ArrayList<>(symbolTable.entrySet());
+        symbolList.sort(Comparator.comparingInt(o -> o.getValue().getStackOffset()));
+        functionList.sort(Comparator.comparingInt(o -> o.getValue().getStackOffset()));
+    }
+
+    public void generate() {
+        globals_count = String.format("%08x", symbolTable.size());
+        for (Map.Entry<String, SymbolEntry> entry: symbolList) {
+            SymbolEntry symbolEntry = entry.getValue();
+            globals.add(new Global(symbolEntry.isConstant(), symbolEntry.getIdentType(), symbolEntry.getStringLength()));
+        }
+        functions_count = String.format("%08x", symbolTable.size());
+
+    }
+}

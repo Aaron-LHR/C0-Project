@@ -20,3 +20,5 @@ fn main() -> int {
     }
     return 0;
 }
+let k: int = 0;
+

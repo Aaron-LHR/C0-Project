@@ -107,8 +107,24 @@ public class App {
             }
             output.println(analyseResult);
 
+        } else if (result.getBoolean("generate")) {
+            // analyze
+            var analyzer = new Analyser(tokenizer);
+            AnalyseResult analyseResult;
+            List<Instruction> instructions;
+            try {
+                analyseResult = analyzer.analyse();
+            } catch (Exception e) {
+                // 遇到错误不输出，直接退出
+                System.err.println(e);
+                System.exit(-1);
+                return;
+            }
+
+            output.println(analyseResult);
+
         } else {
-            System.err.println("Please specify either '--analyse' or '--tokenize'.");
+            System.err.println("Please specify either '--analyse' or '--tokenize' or '--generate'.");
             System.exit(3);
         }
     }
@@ -117,7 +133,8 @@ public class App {
         var builder = ArgumentParsers.newFor("miniplc0-java");
         var parser = builder.build();
         parser.addArgument("-t", "--tokenize").help("Tokenize the input").action(Arguments.storeTrue());
-        parser.addArgument("-l", "--analyse").help("Analyze the input").action(Arguments.storeTrue());
+        parser.addArgument("-a", "--analyse").help("Analyze the input").action(Arguments.storeTrue());
+        parser.addArgument("-g", "--generate").help("Generate hex code").action(Arguments.storeTrue());
         parser.addArgument("-o", "--output").help("Set the output file").required(true).dest("output")
                 .action(Arguments.store());
         parser.addArgument("file").required(true).dest("input").action(Arguments.store()).help("Input file");

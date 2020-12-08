@@ -11,29 +11,32 @@ public class FunctionEntry {
     private ArrayList<Instruction> instructions;
     private ArrayList<SymbolTable> listOfSymbolTable;
     private int stackOffset;
+    private int functionNameOffset;
 
     /**
      * @param function_param_list:
      * @param returnValueType:
      * @param stackOffset:
      */
-    public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, ArrayList<SymbolTable> functionSymbolTable, int stackOffset) {
+    public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType, ArrayList<Instruction> instructions, ArrayList<SymbolTable> functionSymbolTable, int stackOffset, int functionNameOffset) {
         this.function_param_list = function_param_list;
         this.returnValueType = returnValueType;
         this.instructions = instructions;
         this.listOfSymbolTable = functionSymbolTable;
         this.stackOffset = stackOffset;
+        this.functionNameOffset = functionNameOffset;
     }
 
     public FunctionEntry() {
     }
 
-    public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType) {
+    public FunctionEntry(ArrayList<IdentType> function_param_list, IdentType returnValueType, int stackOffset, int functionNameOffset) {
         this.function_param_list = function_param_list;
         this.returnValueType = returnValueType;
         this.instructions = new ArrayList<>();
         this.listOfSymbolTable = new ArrayList<>();
-        this.stackOffset = 0;
+        this.stackOffset = stackOffset;
+        this.functionNameOffset = functionNameOffset;
     }
 
     public void addSymbolTable(SymbolTable symbolTable) {
@@ -57,6 +60,14 @@ public class FunctionEntry {
 
     public IdentType getReturnValueType() {
         return returnValueType;
+    }
+
+    public ArrayList<SymbolTable> getListOfSymbolTable() {
+        return listOfSymbolTable;
+    }
+
+    public int getFunctionNameOffset() {
+        return functionNameOffset;
     }
 
     /**

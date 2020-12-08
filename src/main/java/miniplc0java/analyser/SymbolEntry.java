@@ -10,16 +10,16 @@ public class SymbolEntry {
     private IdentType identType;
     private int level;
     private Operation operation;
+    private int stringLength;
 
     /**
      * @param isConstant:
      * @param isInitialized:
      * @param stackOffset:
      * @param identType:
-     * @param numeral:
      * @param level:
      */
-    public SymbolEntry(boolean isConstant, boolean isInitialized, int stackOffset, IdentType identType, int level) {
+    public SymbolEntry(boolean isConstant, boolean isInitialized, int stackOffset, IdentType identType, int level, int stringLength) {
         this.isConstant = isConstant;
         this.isInitialized = isInitialized;
         this.stackOffset = stackOffset;
@@ -32,6 +32,7 @@ public class SymbolEntry {
         } else {
             operation = Operation.loca;
         }
+        this.stringLength = stringLength;
     }
 
     /**
@@ -47,6 +48,14 @@ public class SymbolEntry {
 
     public int getLevel() {
         return level;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public int getStringLength() {
+        return stringLength;
     }
 
     public Operation getOperationByLocation() {
