@@ -127,7 +127,7 @@ public class App {
 
         } else {
             System.err.println("Please specify either '--analyse' or '--tokenize' or '--generate'.");
-            System.exit(3);
+            System.exit(-1);
         }
     }
 
