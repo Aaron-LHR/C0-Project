@@ -138,6 +138,12 @@ public class Instruction {
                         return String.format("%s%016x", this.opt.getGenerateInstruction(), (long)this.intValue);
                     case DOUBLE:
                         return String.format("%s%x", this.opt.getGenerateInstruction(), Double.doubleToLongBits(this.doubleValue));
+                    case STRING_LITERAL:
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (int i = 0; i < stringValue.length(); i++) {
+                            stringBuilder.append(String.format("%x", (int) stringValue.charAt(i)));
+                        }
+                        return String.format("%s%s", this.opt.getGenerateInstruction(), stringBuilder.toString());
                 }
             default:
                 System.out.println("default");

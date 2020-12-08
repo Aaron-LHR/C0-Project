@@ -938,7 +938,7 @@ public final class Analyser {
                 instructions.add(new Instruction(Operation.push, (String)STRING_LITERAL.getValue()));
                 instructions.add(new Instruction(Operation.store64));
                 instructions.add(new Instruction(Operation.push, offset));
-                result = IdentType.STRING_LITERAL;
+                result = IdentType.INT;
                 break;
             case CHAR_LITERAL:
                 Token CHAR_LITERAL = expect(TokenType.CHAR_LITERAL);
