@@ -1,5 +1,11 @@
 package miniplc0java.instruction;
 
+import miniplc0java.error.AnalyzeError;
+import miniplc0java.error.CompileError;
+import miniplc0java.error.ErrorCode;
+import miniplc0java.error.GenerateError;
+import miniplc0java.util.Pos;
+
 public enum Operation {
     nop, push, pop, loca, arga, globa, load64, store64, call,
     add_i, add_f, sub_i, sub_f, mul_i, mul_f, div_i, div_f, div_u,
@@ -10,8 +16,7 @@ public enum Operation {
     ret,
     scan_i, scan_c, scan_f, print_i, print_c, print_f, print_s, println;
 
-    @Override
-    public String toString() {
+    public String getGenerateInstruction() throws GenerateError {
         switch (this) {
             case nop:
                 return "00";
@@ -91,6 +96,8 @@ public enum Operation {
                 return "57";
             case println:
                 return "58";
+            default:
+                throw new GenerateError(ErrorCode.InstructionNotFound, new Pos(0, 0));
         }
     }
 }

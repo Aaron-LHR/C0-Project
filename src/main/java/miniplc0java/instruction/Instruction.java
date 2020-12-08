@@ -1,6 +1,11 @@
 package miniplc0java.instruction;
 
+import miniplc0java.error.AnalyzeError;
+import miniplc0java.error.CompileError;
+import miniplc0java.error.ErrorCode;
+import miniplc0java.error.GenerateError;
 import miniplc0java.tokenizer.IdentType;
+import miniplc0java.util.Pos;
 
 import java.util.Objects;
 
@@ -85,6 +90,60 @@ public class Instruction {
         return intValue;
     }
 
+    public String getGenerateInstruction() throws GenerateError {
+        switch (this.opt) {
+            case nop:
+            case pop:
+            case load64:
+            case store64:
+            case add_i:
+            case add_f:
+            case sub_i:
+            case sub_f:
+            case mul_i:
+            case mul_f:
+            case div_i:
+            case div_f:
+            case div_u:
+            case cmp_i:
+            case cmp_u:
+            case cmp_f:
+            case neg_i:
+            case neg_f:
+            case set_lt:
+            case set_gt:
+            case ftoi:
+            case itof:
+            case ret:
+            case scan_c:
+            case scan_f:
+            case scan_i:
+            case print_c:
+            case print_f:
+            case print_i:
+            case print_s:
+            case println:
+                return String.format("%s", this.opt.getGenerateInstruction());
+            case loca:
+            case arga:
+            case globa:
+            case call:
+            case br:
+            case br_false:
+            case br_true:
+                return String.format("%s%08x", this.opt, this.intValue);
+            case push:
+                switch (identType) {
+                    case INT:
+                        return String.format("%s%016x", this.opt.getGenerateInstruction(), (long)this.intValue);
+                    case DOUBLE:
+                        return String.format("%s%x", this.opt.getGenerateInstruction(), Double.doubleToLongBits(this.doubleValue));
+                }
+            default:
+                throw new GenerateError(ErrorCode.InstructionNotFound, new Pos(0, 0));
+        }
+    }
+
     @Override
     public String toString() {
         switch (this.opt) {
@@ -130,7 +189,7 @@ public class Instruction {
             case br_true:
                 return String.format("%s %s", this.opt, this.intValue);
             default:
-                return "ILL";
+                return "error";
         }
     }
 }

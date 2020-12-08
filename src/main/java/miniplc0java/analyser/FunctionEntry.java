@@ -62,6 +62,14 @@ public class FunctionEntry {
         return returnValueType;
     }
 
+    public int getSizeOfListOfSymbolTable() {
+        int size = 0;
+        for (SymbolTable symbolTable: listOfSymbolTable) {
+            size += symbolTable.size();
+        }
+        return size;
+    }
+
     public ArrayList<SymbolTable> getListOfSymbolTable() {
         return listOfSymbolTable;
     }

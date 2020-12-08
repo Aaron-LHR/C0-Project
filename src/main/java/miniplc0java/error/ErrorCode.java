@@ -7,5 +7,5 @@ public enum ErrorCode {
     DivideZero, TooShortParamList, TooLongParamList, InvalidBinaryOperator, InvalidAsExpr, InvalidIfExpr,
     NoBegin, NoEnd, NeedIdentifier, ConstantNeedValue, NoSemicolon, InvalidVariableDeclaration, IncompleteExpression,
     VariableNotDeclared, FunctionNotDeclared, AssignToConstant, DuplicateDeclaration, NotInitialized, InvalidAssignment, InvalidPrint, ExpectedToken,
-    BreakError, ContinueError, NoReturn
+    BreakError, ContinueError, NoReturn, InstructionNotFound
 }

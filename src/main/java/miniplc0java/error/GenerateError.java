@@ -2,7 +2,7 @@ package miniplc0java.error;
 
 import miniplc0java.util.Pos;
 
-public class AnalyzeError extends CompileError {
+public class GenerateError extends CompileError {
     private static final long serialVersionUID = 1L;
 
     ErrorCode code;
@@ -22,7 +22,7 @@ public class AnalyzeError extends CompileError {
      * @param code
      * @param pos
      */
-    public AnalyzeError(ErrorCode code, Pos pos) {
+    public GenerateError(ErrorCode code, Pos pos) {
         this.code = code;
         this.pos = pos;
     }

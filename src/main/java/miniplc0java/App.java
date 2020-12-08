@@ -11,6 +11,7 @@ import java.util.*;
 import miniplc0java.analyser.AnalyseResult;
 import miniplc0java.analyser.Analyser;
 import miniplc0java.error.CompileError;
+import miniplc0java.generator.Generator;
 import miniplc0java.instruction.Instruction;
 import miniplc0java.tokenizer.StringIter;
 import miniplc0java.tokenizer.Token;
@@ -120,8 +121,8 @@ public class App {
                 System.exit(-1);
                 return;
             }
-
-            output.println(analyseResult);
+            Generator generator = new Generator(analyseResult);
+            output.println(generator);
 
         } else {
             System.err.println("Please specify either '--analyse' or '--tokenize' or '--generate'.");

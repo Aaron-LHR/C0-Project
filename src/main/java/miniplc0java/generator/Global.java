@@ -2,9 +2,12 @@ package miniplc0java.generator;
 
 import miniplc0java.tokenizer.IdentType;
 
+import java.util.Collections;
+
 public class Global {
     String isConst;
     String valueCount;
+    int stringLength;
 
     public Global(boolean isConst, IdentType identType, int stringLength) {
         if (isConst) {
@@ -17,5 +20,11 @@ public class Global {
         } else {
             this.valueCount = "00000000";
         }
+        this.stringLength = stringLength;
+    }
+
+    @Override
+    public String toString() {
+        return isConst + valueCount + Collections.nCopies(stringLength, "00");
     }
 }
