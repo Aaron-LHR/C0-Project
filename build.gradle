@@ -33,7 +33,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = 'C0-Project.App'
+    mainClassName = 'miniplc0java.App'
 }
 
 tasks.withType(JavaCompile) {
