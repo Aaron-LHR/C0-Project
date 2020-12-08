@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="词法分析" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="miniplc0java.App" />
+    <module name="miniplc0java.main" />
+    <option name="PROGRAM_PARAMETERS" value="-t -o D:\Learning\大三上\编译原理\C0-Project\src\main\java\miniplc0java\词法分析.txt D:\Learning\大三上\编译原理\C0-Project\src\main\java\miniplc0java\input.txt" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

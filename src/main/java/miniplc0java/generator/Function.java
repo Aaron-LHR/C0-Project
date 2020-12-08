@@ -12,7 +12,7 @@ public class Function {
     String param_slots;
     String loc_slots;
     String body_count;
-    ArrayList<String> body_items;
+    ArrayList<String> body_items = new ArrayList<>();
 
     public Function(int name, IdentType ret_identType, int param_slots, int loc_slots, ArrayList<Instruction> instructions) throws GenerateError {
         this.name = String.format("%08x", name);

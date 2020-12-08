@@ -122,6 +122,7 @@ public class App {
                 return;
             }
             Generator generator = new Generator(analyseResult);
+            generator.generate();
             output.println(generator);
 
         } else {

@@ -803,7 +803,7 @@ public final class Analyser {
         instructions.add(jump);
         int jumpLength = instructions.size();
         boolean jumpHasReturned = analyse_block_stmt(instructions, hasReturn);
-        jumpLength = instructions.size() - jumpLength - 1;
+        jumpLength = instructions.size() - jumpLength;
         jump.setValue(jumpLength);
         return jumpHasReturned;
     }
@@ -882,7 +882,7 @@ public final class Analyser {
                             analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
                             instructions.add(standardFunctionInstruction.get(functionName));
                         } else {
-                            instructions.add(new Instruction(Operation.push));  // 压返回值
+                            instructions.add(new Instruction(Operation.push, 0));  // 压返回值
                             analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
                             instructions.add(new Instruction(Operation.call, functionEntry.getStackOffset()));
                         }

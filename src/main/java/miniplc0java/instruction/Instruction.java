@@ -1,7 +1,5 @@
 package miniplc0java.instruction;
 
-import miniplc0java.error.AnalyzeError;
-import miniplc0java.error.CompileError;
 import miniplc0java.error.ErrorCode;
 import miniplc0java.error.GenerateError;
 import miniplc0java.tokenizer.IdentType;
@@ -91,6 +89,7 @@ public class Instruction {
     }
 
     public String getGenerateInstruction() throws GenerateError {
+//        System.out.println(this.opt);
         switch (this.opt) {
             case nop:
             case pop:
@@ -131,8 +130,9 @@ public class Instruction {
             case br:
             case br_false:
             case br_true:
-                return String.format("%s%08x", this.opt, this.intValue);
+                return String.format("%s%08x", this.opt.getGenerateInstruction(), this.intValue);
             case push:
+//                System.out.println("push");
                 switch (identType) {
                     case INT:
                         return String.format("%s%016x", this.opt.getGenerateInstruction(), (long)this.intValue);
@@ -140,6 +140,9 @@ public class Instruction {
                         return String.format("%s%x", this.opt.getGenerateInstruction(), Double.doubleToLongBits(this.doubleValue));
                 }
             default:
+                System.out.println("default");
+                System.out.println("InstructionNotFound:" + this.opt);
+                System.out.println("IdentType:" + identType);
                 throw new GenerateError(ErrorCode.InstructionNotFound, new Pos(0, 0));
         }
     }
