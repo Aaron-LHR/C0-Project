@@ -91,10 +91,11 @@ public class FunctionEntry {
         for (SymbolTable symbolTable: listOfSymbolTable) {
             stringBuilder.append(symbolTable).append("\n");
         }
-        return  "function_param_list=" + function_param_list +
-                "\nreturnValueType=" + returnValueType +
-                "\ninstructions=" + instructions +
-                "\nlistOfSymbolTable=\n    " + stringBuilder.toString() +
-                "stackOffset=" + stackOffset;
+        return  "function_param_list:" + function_param_list +
+                "\nreturnValueType:" + returnValueType +
+                "\ninstructions:" + instructions +
+                "\nlistOfSymbolTable:\n    " + stringBuilder.toString() +
+                "stackOffset:" + stackOffset +
+                "\nfunctionNameOffset:" + functionNameOffset;
     }
 }

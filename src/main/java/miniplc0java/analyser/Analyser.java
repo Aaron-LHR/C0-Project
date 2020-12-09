@@ -27,6 +27,7 @@ public final class Analyser {
     ArrayList<SymbolTable> listOfSymbolTable = new ArrayList<>();
     HashMap<String, FunctionEntry> functionSymbolTable = new HashMap<>();
     int globalStringIndex = 0;
+    boolean isTest;
 
     /** 下一个变量的栈偏移 */
     int nextOffset = 0;
@@ -40,11 +41,12 @@ public final class Analyser {
     ArrayList<SymbolTable> curFunctionSymbolTable = new ArrayList<>();
     HashMap<String, Instruction> standardFunctionInstruction = new HashMap<>();
 
-    public Analyser(Tokenizer tokenizer) throws AnalyzeError {
+    public Analyser(Tokenizer tokenizer, boolean isTest) throws AnalyzeError {
         this.tokenizer = tokenizer;
         buildOperatorPriorityTable();
         buildBinaryOperationTable();
         buildStandardFunctionInstruction();
+        this.isTest = isTest;
     }
 
     private void buildStandardFunctionLibrary() throws AnalyzeError {
@@ -305,8 +307,8 @@ public final class Analyser {
      * @param curPos        当前 token 的位置（报错用）
      * @throws AnalyzeError 如果重复定义了则抛异常
      */
-    private int addSymbol(String name, boolean isInitialized, boolean isConstant, Pos curPos, IdentType identType, int stingLength) throws AnalyzeError {
-        SymbolTable symbolTable = this.listOfSymbolTable.get(this.listOfSymbolTable.size() - 1);
+    private int addGlobalSymbol(String name, boolean isInitialized, boolean isConstant, Pos curPos, IdentType identType, int stingLength) throws AnalyzeError {
+        SymbolTable symbolTable = this.listOfSymbolTable.get(0);
         if (symbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
@@ -324,6 +326,24 @@ public final class Analyser {
     }
 
     private int addSymbol(String name, boolean isInitialized, boolean isConstant, Pos curPos, IdentType identType) throws AnalyzeError {
+        SymbolTable symbolTable = this.listOfSymbolTable.get(this.listOfSymbolTable.size() - 1);
+        if (symbolTable.get(name) != null) {
+            throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
+        } else {
+            //            if (this.listOfSymbolTable.size() > 2 && this.listOfSymbolTable.size() > maxSize) {
+//                maxSize = this.listOfSymbolTable.size();
+//                ArrayList<SymbolTable> localTable = (ArrayList<SymbolTable>) this.listOfSymbolTable.clone();
+//                localTable.remove(0);
+//                localTable.remove(1);
+//                addFunctionLocalTable(localTable, curPos);
+//            } else {
+//
+//            }
+            return symbolTable.put(name, isInitialized, isConstant, identType, 0);
+        }
+    }
+
+    private int addGlobalSymbol(String name, boolean isInitialized, boolean isConstant, Pos curPos, IdentType identType) throws AnalyzeError {
         SymbolTable symbolTable = this.listOfSymbolTable.get(this.listOfSymbolTable.size() - 1);
         if (symbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
@@ -361,7 +381,13 @@ public final class Analyser {
         if (globalSymbolTable.get(name) != null || functionSymbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
-            int functionNameOffset = addSymbol(String.valueOf(this.globalStringIndex++), true, true, curPos, IdentType.STRING_LITERAL, name.length());
+            String functionName;
+            if (isTest) {
+                functionName = this.globalStringIndex++ + name;
+            } else {
+                functionName = String.valueOf(this.globalStringIndex++);
+            }
+            int functionNameOffset = addGlobalSymbol(functionName, true, true, curPos, IdentType.STRING_LITERAL, name.length());
             this.functionSymbolTable.put(name, new FunctionEntry(function_param_list, returnValueType, instructions, listOfSymbolTable, functionSymbolTable.size(), functionNameOffset));
         }
     }
@@ -371,7 +397,14 @@ public final class Analyser {
         if (globalSymbolTable.get(name) != null || functionSymbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         } else {
-            int functionNameOffset = addSymbol(String.valueOf(this.globalStringIndex++), true, true, curPos, IdentType.STRING_LITERAL, name.length());
+            String functionName;
+            if (isTest) {
+                functionName = this.globalStringIndex++ + name;
+            } else {
+                functionName = String.valueOf(this.globalStringIndex++);
+            }
+            int functionNameOffset = addGlobalSymbol(functionName, true, true, curPos, IdentType.STRING_LITERAL, name.length());
+            System.out.println(name);
             this.functionSymbolTable.put(name, new FunctionEntry(function_param_list, returnValueType, functionSymbolTable.size(), functionNameOffset));
         }
     }
@@ -933,7 +966,13 @@ public final class Analyser {
             // TODO: 2020/11/18 字符串字面量 只会在 putstr 调用中出现，语义是对应的全局常量的编号
             case STRING_LITERAL:
                 Token STRING_LITERAL = expect(TokenType.STRING_LITERAL);
-                var offset = addSymbol(String.valueOf(this.globalStringIndex++), true, true, /* 当前位置 */ STRING_LITERAL.getStartPos(), IdentType.STRING_LITERAL, ((String)STRING_LITERAL.getValue()).length());
+                String string;
+                if (isTest) {
+                    string = this.globalStringIndex++ + (String)STRING_LITERAL.getValue();
+                } else {
+                    string = String.valueOf(this.globalStringIndex++);
+                }
+                var offset = addGlobalSymbol(string, true, true, /* 当前位置 */ STRING_LITERAL.getStartPos(), IdentType.STRING_LITERAL, ((String)STRING_LITERAL.getValue()).length());
                 instructions.add(new Instruction(Operation.globa, offset));
                 instructions.add(new Instruction(Operation.push, (String)STRING_LITERAL.getValue()));
                 instructions.add(new Instruction(Operation.store64));

@@ -1,7 +1,6 @@
 
-fn main() -> int {
-    putstr("hello world");
-    return 0;
+fn main() -> void {
+    putstr("aaa");
 }
-
+let a:int;
 

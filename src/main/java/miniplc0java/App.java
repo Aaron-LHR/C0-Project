@@ -95,7 +95,7 @@ public class App {
             }
         } else if (result.getBoolean("analyse")) {
             // analyze
-            var analyzer = new Analyser(tokenizer);
+            var analyzer = new Analyser(tokenizer, true);
             AnalyseResult analyseResult;
             List<Instruction> instructions;
             try {
@@ -110,7 +110,7 @@ public class App {
 
         } else if (result.getBoolean("generate")) {
             // analyze
-            var analyzer = new Analyser(tokenizer);
+            var analyzer = new Analyser(tokenizer, false);
             AnalyseResult analyseResult;
             List<Instruction> instructions;
             try {

@@ -2,7 +2,7 @@
   <configuration default="false" name="机器码生成" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="miniplc0java.App" />
     <module name="miniplc0java.main" />
-    <option name="PROGRAM_PARAMETERS" value="-g -o D:\Learning\大三上\编译原理\C0-Project\src\main\java\miniplc0java\机器码.txt D:\Learning\大三上\编译原理\C0-Project\src\main\java\miniplc0java\input.txt" />
+    <option name="PROGRAM_PARAMETERS" value="-g -o D:\Learning\大三上\编译原理\C0-Project\src\main\java\miniplc0java\result.txt D:\Learning\大三上\编译原理\C0-Project\src\main\java\miniplc0java\input.txt" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
