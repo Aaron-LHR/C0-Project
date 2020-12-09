@@ -122,7 +122,7 @@ public class App {
             String res = generator.toString();
             for (int i = 0; (i + 1) * 2 <= res.length(); i++) {
 //                System.out.println(res.substring(i * 2, (i + 1) * 2));
-                fp.write(hexStringToBytes(res.substring(i * 2, (i + 1) * 2)));
+                output.print(hexStringToBytes(res.substring(i * 2, (i + 1) * 2)));
             }
 //            output.println(generator);
 
