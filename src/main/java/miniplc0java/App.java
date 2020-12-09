@@ -124,7 +124,7 @@ public class App {
 //                System.out.println(res.substring(i * 2, (i + 1) * 2));
                 output.write(hexStringToBytes(res.substring(i * 2, (i + 1) * 2)));
             }
-            System.out.println(res);
+//            System.out.println(res);
 //            output.println(generator);
 
         } else {
