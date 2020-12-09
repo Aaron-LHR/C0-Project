@@ -657,6 +657,7 @@ public final class Analyser {
             default:
                 throw new AnalyzeError(ErrorCode.InvalidReturnValueType, type.getStartPos());
         }
+        addSymbol(String.valueOf(globalStringIndex++), false, false, nameToken.getStartPos(), identType);
         String name = (String) nameToken.getValue();
         addFunctionSymbol(name, function_param_list, identType, nameToken.getStartPos());
         boolean hasReturned = analyse_block_stmt(instructions, (identType == IdentType.VOID));
@@ -914,8 +915,13 @@ public final class Analyser {
                         FunctionEntry functionEntry = getFunctionSymbol(functionName, nameToken.getStartPos());
                         expect(TokenType.L_PAREN);
                         if (standardFunctionInstruction.containsKey(functionName)) {
+                            switch (functionName) {
+                                case ""
+                            }
                             analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
                             instructions.add(standardFunctionInstruction.get(functionName));
+                            expect(TokenType.R_PAREN);
+                            result = functionEntry.getReturnValueType();
                         } else {
                             switch (functionEntry.getReturnValueType()) {
                                 case INT:
