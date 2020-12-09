@@ -2,117 +2,40 @@
 VariableName:0_start
 SymbolEntry{isConstant=true, isInitialized=true, stackOffset=0, identType=string, level=0, operation=globa, content=_start}
 
-VariableName:1getint
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=1, identType=string, level=0, operation=globa, content=getint}
+VariableName:1fib
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=1, identType=string, level=0, operation=globa, content=fib}
 
-VariableName:2getdouble
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=2, identType=string, level=0, operation=globa, content=getdouble}
-
-VariableName:3getchar
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=3, identType=string, level=0, operation=globa, content=getchar}
-
-VariableName:4putint
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=4, identType=string, level=0, operation=globa, content=putint}
-
-VariableName:5putdouble
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=5, identType=string, level=0, operation=globa, content=putdouble}
-
-VariableName:6putchar
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=6, identType=string, level=0, operation=globa, content=putchar}
-
-VariableName:7putstr
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=7, identType=string, level=0, operation=globa, content=putstr}
-
-VariableName:8putln
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=8, identType=string, level=0, operation=globa, content=putln}
-
-VariableName:9main
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=9, identType=string, level=0, operation=globa, content=main}
-
-VariableName:10aaa
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=10, identType=string, level=0, operation=globa, content=aaa}
+VariableName:2main
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=2, identType=string, level=0, operation=globa, content=main}
 
 
 º¯Êý±íÎª£º
 functionName:_start
 function_param_list:[]
 returnValueType:void
-instructions:[call 9]
+instructions:[call 2]
 listOfSymbolTable:
     stackOffset:0
 functionNameOffset:0
 
-functionName:getint
-function_param_list:[]
+functionName:fib
+function_param_list:[int]
 returnValueType:int
-instructions:[]
+instructions:[arga 1, load64, push 1, cmp_i, set_gt, br_true 4, arga 0, push 1, store64, ret, loca 2, stackalloc 1, arga 1, load64, push 1, cmp_i, set_gt, call 1, store64, loca 2, loca 2, load64, stackalloc 1, arga 1, load64, push 2, cmp_i, set_gt, call 1, cmp_i, set_gt, store64, arga 0, loca 2, load64, store64, ret]
 listOfSymbolTable:
-    stackOffset:1
+    SymbolTable{table={result=SymbolEntry{isConstant=false, isInitialized=true, stackOffset=2, identType=int, level=2, operation=loca, content=}}, level=2, basePoint=2, curPoint=3}
+SymbolTable{table={}, level=3, basePoint=2, curPoint=2}
+stackOffset:1
 functionNameOffset:1
-
-functionName:getdouble
-function_param_list:[]
-returnValueType:double
-instructions:[]
-listOfSymbolTable:
-    stackOffset:2
-functionNameOffset:2
-
-functionName:getchar
-function_param_list:[]
-returnValueType:int
-instructions:[]
-listOfSymbolTable:
-    stackOffset:3
-functionNameOffset:3
-
-functionName:putint
-function_param_list:[int]
-returnValueType:void
-instructions:[]
-listOfSymbolTable:
-    stackOffset:4
-functionNameOffset:4
-
-functionName:putdouble
-function_param_list:[double]
-returnValueType:void
-instructions:[]
-listOfSymbolTable:
-    stackOffset:5
-functionNameOffset:5
-
-functionName:putchar
-function_param_list:[int]
-returnValueType:void
-instructions:[]
-listOfSymbolTable:
-    stackOffset:6
-functionNameOffset:6
-
-functionName:putstr
-function_param_list:[int]
-returnValueType:void
-instructions:[]
-listOfSymbolTable:
-    stackOffset:7
-functionNameOffset:7
-
-functionName:putln
-function_param_list:[]
-returnValueType:void
-instructions:[]
-listOfSymbolTable:
-    stackOffset:8
-functionNameOffset:8
 
 functionName:main
 function_param_list:[]
-returnValueType:void
-instructions:[push 10, print_s]
+returnValueType:int
+instructions:[loca 2, push 0, store64, loca 3, store64, loca 3, scan_i, store64, loca 2, load64, loca 3, load64, cmp_i, set_gt, br_false 18, loca 2, load64, print_i, push 32, print_c, stackalloc 1, loca 2, load64, call 1, print_i, println, loca 2, loca 2, load64, push 1, cmp_i, set_gt, store64, br -27, arga 0, push 0, store64, ret]
 listOfSymbolTable:
-    SymbolTable{table={}, level=2, basePoint=9, curPoint=9}
-stackOffset:9
-functionNameOffset:9
+    SymbolTable{table={i=SymbolEntry{isConstant=false, isInitialized=true, stackOffset=2, identType=int, level=2, operation=loca, content=}, j=SymbolEntry{isConstant=false, isInitialized=false, stackOffset=3, identType=int, level=2, operation=loca, content=}}, level=2, basePoint=2, curPoint=4}
+SymbolTable{table={}, level=3, basePoint=4, curPoint=4}
+stackOffset:2
+functionNameOffset:2
 
 

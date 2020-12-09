@@ -510,7 +510,7 @@ public final class Analyser {
         addFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, new Pos(0, 0));
         ArrayList<Instruction> instructions = new ArrayList<>();
         // 添加标准库函数
-        buildStandardFunctionLibrary();
+//        buildStandardFunctionLibrary();
         while (true) {
             switch (peek().getTokenType()) {
                 case LET_KW:
@@ -647,9 +647,11 @@ public final class Analyser {
         switch ((String) type.getValue()) {
             case "int":
                 identType = IdentType.INT;
+//                addSymbol("0returnValue", false, false, nameToken.getStartPos(), identType);
                 break;
             case "double":
                 identType = IdentType.DOUBLE;
+//                addSymbol("0returnValue", false, false, nameToken.getStartPos(), identType);
                 break;
             case "void":
                 identType = IdentType.VOID;
@@ -657,7 +659,6 @@ public final class Analyser {
             default:
                 throw new AnalyzeError(ErrorCode.InvalidReturnValueType, type.getStartPos());
         }
-        addSymbol(String.valueOf(globalStringIndex++), false, false, nameToken.getStartPos(), identType);
         String name = (String) nameToken.getValue();
         addFunctionSymbol(name, function_param_list, identType, nameToken.getStartPos());
         boolean hasReturned = analyse_block_stmt(instructions, (identType == IdentType.VOID));
@@ -877,7 +878,9 @@ public final class Analyser {
     private void analyse_return_stmt(ArrayList<Instruction> instructions) throws CompileError {
         expect(TokenType.RETURN_KW);
         if (peek().getTokenType() == TokenType.IDENT || peek().getTokenType() == TokenType.L_PAREN || peek().getTokenType() == TokenType.MINUS || peek().getTokenType() == TokenType.UINT_LITERAL || peek().getTokenType() == TokenType.DOUBLE_LITERAL || peek().getTokenType() == TokenType.STRING_LITERAL || peek().getTokenType() == TokenType.CHAR_LITERAL) {
+            instructions.add(new Instruction(Operation.arga, 0));
             analyse_expr(instructions, TokenType.None);
+            instructions.add(new Instruction(Operation.store64, 0));
         }
         instructions.add(new Instruction(Operation.ret));
         expect(TokenType.SEMICOLON);
@@ -912,17 +915,42 @@ public final class Analyser {
                         break;
                     case L_PAREN:   // call_expr
                         String functionName= (String) nameToken.getValue();
-                        FunctionEntry functionEntry = getFunctionSymbol(functionName, nameToken.getStartPos());
                         expect(TokenType.L_PAREN);
                         if (standardFunctionInstruction.containsKey(functionName)) {
                             switch (functionName) {
-                                case ""
+                                case "getint":
+                                case "getchar":
+                                    expect(TokenType.R_PAREN);
+                                    instructions.add(standardFunctionInstruction.get(functionName));
+                                    result = IdentType.INT;
+                                    break;
+                                case "getdouble":
+                                    expect(TokenType.R_PAREN);
+                                    instructions.add(standardFunctionInstruction.get(functionName));
+                                    result = IdentType.DOUBLE;
+                                    break;
+                                case "putint":
+                                case "putchar":
+                                case "putstr":
+                                    checkTypeMatch(analyse_expr(instructions, TokenType.None), IdentType.INT, nameToken.getStartPos());
+                                    expect(TokenType.R_PAREN);
+                                    instructions.add(standardFunctionInstruction.get(functionName));
+                                    result = IdentType.VOID;
+                                    break;
+                                case "putdouble":
+                                    checkTypeMatch(analyse_expr(instructions, TokenType.None), IdentType.DOUBLE, nameToken.getStartPos());
+                                    expect(TokenType.R_PAREN);
+                                    instructions.add(standardFunctionInstruction.get(functionName));
+                                    result = IdentType.VOID;
+                                    break;
+                                case "putln":
+                                    expect(TokenType.R_PAREN);
+                                    instructions.add(standardFunctionInstruction.get(functionName));
+                                    result = IdentType.VOID;
+                                    break;
                             }
-                            analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
-                            instructions.add(standardFunctionInstruction.get(functionName));
-                            expect(TokenType.R_PAREN);
-                            result = functionEntry.getReturnValueType();
                         } else {
+                            FunctionEntry functionEntry = getFunctionSymbol(functionName, nameToken.getStartPos());
                             switch (functionEntry.getReturnValueType()) {
                                 case INT:
                                 case DOUBLE:
@@ -935,9 +963,9 @@ public final class Analyser {
 //                            instructions.add(new Instruction(Operation.push, 0));  // 压返回值
                             analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
                             instructions.add(new Instruction(Operation.call, functionEntry.getStackOffset()));
+                            expect(TokenType.R_PAREN);
+                            result = functionEntry.getReturnValueType();
                         }
-                        expect(TokenType.R_PAREN);
-                        result = functionEntry.getReturnValueType();
                         break;
                     default:    // ident_expr
                         symbolEntry = getSymbol((String) nameToken.getValue(), nameToken.getStartPos());
