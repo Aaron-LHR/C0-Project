@@ -269,15 +269,22 @@ public class Tokenizer {
             case '/':
                 // 填入返回语句
                 if (it.peekChar() == '/') { //注释功能
-                    Pos startPos = it.previousPos();
                     it.nextChar();
-                    StringBuilder stringBuilder = new StringBuilder();
-                    while (it.nextChar() != '\n') {
-                        stringBuilder.append(it.nextChar());
+                    while (it.nextChar() != '\n' && !it.isEOF()) {
+                        it.nextChar();
+//                        System.out.println();
                     }
-                    String result = stringBuilder.toString();
-                    Pos endPos = it.currentPos();
-                    return new Token(TokenType.COMMENT, result, startPos, endPos);
+                    return nextToken();
+
+//                    Pos startPos = it.previousPos();
+//                    it.nextChar();
+//                    StringBuilder stringBuilder = new StringBuilder();
+//                    while (it.nextChar() != '\n') {
+//                        stringBuilder.append(it.nextChar());
+//                    }
+//                    String result = stringBuilder.toString();
+//                    Pos endPos = it.currentPos();
+//                    return new Token(TokenType.COMMENT, result, startPos, endPos);
                 } else {
                     return new Token(TokenType.DIV, '/', it.previousPos(), it.currentPos());
                 }
