@@ -1,11 +1,6 @@
 package miniplc0java;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 
 import miniplc0java.analyser.AnalyseResult;
@@ -27,7 +22,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.checkerframework.checker.units.qual.A;
 
 public class App {
-    public static void main(String[] args) throws CompileError {
+    public static void main(String[] args) throws CompileError, IOException {
         var argparse = buildArgparse();
         Namespace result;
         try {
@@ -123,12 +118,33 @@ public class App {
             }
             Generator generator = new Generator(analyseResult);
             generator.generate();
-            output.println(generator);
+            FileOutputStream fp = new FileOutputStream(outputFileName, true);
+            String res = generator.toString();
+            for (int i = 0; (i + 1) * 2 <= res.length(); i++) {
+//                System.out.println(res.substring(i * 2, (i + 1) * 2));
+                fp.write(hexStringToBytes(res.substring(i * 2, (i + 1) * 2)));
+            }
+//            output.println(generator);
 
         } else {
             System.err.println("Please specify either '--analyse' or '--tokenize' or '--generate'.");
             System.exit(-1);
         }
+    }
+
+    private static byte[] hexStringToBytes(String str) {
+        if (str == null || str.trim().equals("")) {
+            return new byte[0];
+        }
+
+        byte[] bytes = new byte[str.length() / 2];
+        for (int i = 0; i < str.length() / 2; i++) {
+            String subStr = str.substring(i * 2, i * 2 + 2);
+            bytes[i] = (byte) Integer.parseInt(subStr, 16);
+        }
+
+        return bytes;
+
     }
 
     private static ArgumentParser buildArgparse() {

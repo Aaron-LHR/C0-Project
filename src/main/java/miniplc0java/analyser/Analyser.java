@@ -528,6 +528,7 @@ public final class Analyser {
 //                    addFunctionLocalTable(this.listOfSymbolTable.get(0), new Pos(0, 0));
                     this.curFunctionSymbolTable.clear();
                     this.curFunctionSymbolTable.add(this.listOfSymbolTable.get(0));
+                    instructions.add(new Instruction(Operation.stackalloc, 1));
                     instructions.add(new Instruction(Operation.call, getFunctionSymbol("main", new Pos(0, 0)).getStackOffset()));
                     setFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, instructions, new ArrayList<SymbolTable>(), new Pos(0, 0));
                     return;
