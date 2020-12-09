@@ -21,8 +21,8 @@ public class SymbolTable {
         return this.table.get(name);
     }
 
-    public int put(String name, boolean isInitialized, boolean isConstant, IdentType identType, int stringLength) {
-        this.table.put(name, new SymbolEntry(isConstant, isInitialized, this.curPoint, identType, this.level, stringLength));
+    public int put(String name, boolean isInitialized, boolean isConstant, IdentType identType, String content) {
+        this.table.put(name, new SymbolEntry(isConstant, isInitialized, this.curPoint, identType, this.level, content));
 //        System.out.println(table);
         return this.curPoint++;
     }

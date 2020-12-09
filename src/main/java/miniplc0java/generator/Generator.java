@@ -35,7 +35,7 @@ public class Generator {
         globals_count = String.format("%08x", symbolTable.size());
         for (Map.Entry<String, SymbolEntry> entry: symbolList) {
             SymbolEntry symbolEntry = entry.getValue();
-            globals.add(new Global(symbolEntry.isConstant(), symbolEntry.getIdentType(), symbolEntry.getStringLength()));
+            globals.add(new Global(symbolEntry.isConstant(), symbolEntry.getIdentType(), symbolEntry.getStringContent()));
         }
         functions_count = String.format("%08x", symbolTable.size());
         for (Map.Entry<String, FunctionEntry> entry: functionList) {

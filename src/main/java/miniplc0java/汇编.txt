@@ -1,88 +1,88 @@
 全局符号表为：
-VariableName:0getint
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=0, identType=string, level=0, operation=globa}
+VariableName:0_start
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=0, identType=string, level=0, operation=globa, content=_start}
 
-VariableName:1getdouble
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=1, identType=string, level=0, operation=globa}
+VariableName:1getint
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=1, identType=string, level=0, operation=globa, content=getint}
 
-VariableName:2getchar
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=2, identType=string, level=0, operation=globa}
+VariableName:2getdouble
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=2, identType=string, level=0, operation=globa, content=getdouble}
 
-VariableName:3putint
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=3, identType=string, level=0, operation=globa}
+VariableName:3getchar
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=3, identType=string, level=0, operation=globa, content=getchar}
 
-VariableName:4putdouble
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=4, identType=string, level=0, operation=globa}
+VariableName:4putint
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=4, identType=string, level=0, operation=globa, content=putint}
 
-VariableName:5putchar
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=5, identType=string, level=0, operation=globa}
+VariableName:5putdouble
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=5, identType=string, level=0, operation=globa, content=putdouble}
 
-VariableName:6putstr
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=6, identType=string, level=0, operation=globa}
+VariableName:6putchar
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=6, identType=string, level=0, operation=globa, content=putchar}
 
-VariableName:7putln
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=7, identType=string, level=0, operation=globa}
+VariableName:7putstr
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=7, identType=string, level=0, operation=globa, content=putstr}
 
-VariableName:8main
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=8, identType=string, level=0, operation=globa}
+VariableName:8putln
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=8, identType=string, level=0, operation=globa, content=putln}
 
-VariableName:9aaa
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=9, identType=string, level=0, operation=globa}
+VariableName:9main
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=9, identType=string, level=0, operation=globa, content=main}
 
-VariableName:10_start
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=10, identType=string, level=0, operation=globa}
+VariableName:10aaa
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=10, identType=string, level=0, operation=globa, content=aaa}
 
 
 函数表为：
+functionName:_start
+function_param_list:[]
+returnValueType:void
+instructions:[call 9]
+listOfSymbolTable:
+    stackOffset:0
+functionNameOffset:0
+
 functionName:getint
 function_param_list:[]
 returnValueType:int
 instructions:[]
 listOfSymbolTable:
-    stackOffset:0
-functionNameOffset:0
+    stackOffset:1
+functionNameOffset:1
 
 functionName:getdouble
 function_param_list:[]
 returnValueType:double
 instructions:[]
 listOfSymbolTable:
-    stackOffset:1
-functionNameOffset:1
+    stackOffset:2
+functionNameOffset:2
 
 functionName:getchar
 function_param_list:[]
 returnValueType:int
 instructions:[]
 listOfSymbolTable:
-    stackOffset:2
-functionNameOffset:2
+    stackOffset:3
+functionNameOffset:3
 
 functionName:putint
 function_param_list:[int]
 returnValueType:void
 instructions:[]
 listOfSymbolTable:
-    stackOffset:3
-functionNameOffset:3
+    stackOffset:4
+functionNameOffset:4
 
 functionName:putdouble
 function_param_list:[double]
 returnValueType:void
 instructions:[]
 listOfSymbolTable:
-    stackOffset:4
-functionNameOffset:4
-
-functionName:putchar
-function_param_list:[int]
-returnValueType:void
-instructions:[]
-listOfSymbolTable:
     stackOffset:5
 functionNameOffset:5
 
-functionName:putstr
+functionName:putchar
 function_param_list:[int]
 returnValueType:void
 instructions:[]
@@ -90,29 +90,29 @@ listOfSymbolTable:
     stackOffset:6
 functionNameOffset:6
 
-functionName:putln
-function_param_list:[]
+functionName:putstr
+function_param_list:[int]
 returnValueType:void
 instructions:[]
 listOfSymbolTable:
     stackOffset:7
 functionNameOffset:7
 
-functionName:main
-function_param_list:[]
-returnValueType:void
-instructions:[globa 9, push aaa, store64, push 9, print_s]
-listOfSymbolTable:
-    SymbolTable{table={}, level=2, basePoint=8, curPoint=8}
-stackOffset:8
-functionNameOffset:8
-
-functionName:_start
+functionName:putln
 function_param_list:[]
 returnValueType:void
 instructions:[]
 listOfSymbolTable:
-    stackOffset:9
-functionNameOffset:10
+    stackOffset:8
+functionNameOffset:8
+
+functionName:main
+function_param_list:[]
+returnValueType:void
+instructions:[push 10, print_s]
+listOfSymbolTable:
+    SymbolTable{table={}, level=2, basePoint=9, curPoint=9}
+stackOffset:9
+functionNameOffset:9
 
 

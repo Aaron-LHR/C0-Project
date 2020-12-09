@@ -307,7 +307,7 @@ public final class Analyser {
      * @param curPos        当前 token 的位置（报错用）
      * @throws AnalyzeError 如果重复定义了则抛异常
      */
-    private int addGlobalSymbol(String name, boolean isInitialized, boolean isConstant, Pos curPos, IdentType identType, int stingLength) throws AnalyzeError {
+    private int addGlobalSymbol(String name, boolean isInitialized, boolean isConstant, Pos curPos, IdentType identType, String content) throws AnalyzeError {
         SymbolTable symbolTable = this.listOfSymbolTable.get(0);
         if (symbolTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
@@ -321,7 +321,7 @@ public final class Analyser {
 //            } else {
 //
 //            }
-            return symbolTable.put(name, isInitialized, isConstant, identType, stingLength);
+            return symbolTable.put(name, isInitialized, isConstant, identType, content);
         }
     }
 
@@ -339,7 +339,7 @@ public final class Analyser {
 //            } else {
 //
 //            }
-            return symbolTable.put(name, isInitialized, isConstant, identType, 0);
+            return symbolTable.put(name, isInitialized, isConstant, identType, "");
         }
     }
 
@@ -357,7 +357,7 @@ public final class Analyser {
 //            } else {
 //
 //            }
-            return symbolTable.put(name, isInitialized, isConstant, identType, 0);
+            return symbolTable.put(name, isInitialized, isConstant, identType, "");
         }
     }
 
@@ -387,7 +387,7 @@ public final class Analyser {
             } else {
                 functionName = String.valueOf(this.globalStringIndex++);
             }
-            int functionNameOffset = addGlobalSymbol(functionName, true, true, curPos, IdentType.STRING_LITERAL, name.length());
+            int functionNameOffset = addGlobalSymbol(functionName, true, true, curPos, IdentType.STRING_LITERAL, name);
             this.functionSymbolTable.put(name, new FunctionEntry(function_param_list, returnValueType, instructions, listOfSymbolTable, functionSymbolTable.size(), functionNameOffset));
         }
     }
@@ -403,8 +403,8 @@ public final class Analyser {
             } else {
                 functionName = String.valueOf(this.globalStringIndex++);
             }
-            int functionNameOffset = addGlobalSymbol(functionName, true, true, curPos, IdentType.STRING_LITERAL, name.length());
-            System.out.println(name);
+            int functionNameOffset = addGlobalSymbol(functionName, true, true, curPos, IdentType.STRING_LITERAL, name);
+//            System.out.println(name);
             this.functionSymbolTable.put(name, new FunctionEntry(function_param_list, returnValueType, functionSymbolTable.size(), functionNameOffset));
         }
     }
@@ -507,6 +507,7 @@ public final class Analyser {
         // 程序 -> 'begin' 主过程 'end'
         // 示例函数，示例如何调用子程序
         addScope();
+        addFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, new Pos(0, 0));
         ArrayList<Instruction> instructions = new ArrayList<>();
         // 添加标准库函数
         buildStandardFunctionLibrary();
@@ -527,7 +528,8 @@ public final class Analyser {
 //                    addFunctionLocalTable(this.listOfSymbolTable.get(0), new Pos(0, 0));
                     this.curFunctionSymbolTable.clear();
                     this.curFunctionSymbolTable.add(this.listOfSymbolTable.get(0));
-                    addFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, instructions, new ArrayList<SymbolTable>(), new Pos(0, 0));
+                    instructions.add(new Instruction(Operation.call, getFunctionSymbol("main", new Pos(0, 0)).getStackOffset()));
+                    setFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, instructions, new ArrayList<SymbolTable>(), new Pos(0, 0));
                     return;
             }
         }
@@ -972,10 +974,10 @@ public final class Analyser {
                 } else {
                     string = String.valueOf(this.globalStringIndex++);
                 }
-                var offset = addGlobalSymbol(string, true, true, /* 当前位置 */ STRING_LITERAL.getStartPos(), IdentType.STRING_LITERAL, ((String)STRING_LITERAL.getValue()).length());
-                instructions.add(new Instruction(Operation.globa, offset));
-                instructions.add(new Instruction(Operation.push, (String)STRING_LITERAL.getValue()));
-                instructions.add(new Instruction(Operation.store64));
+                var offset = addGlobalSymbol(string, true, true, /* 当前位置 */ STRING_LITERAL.getStartPos(), IdentType.STRING_LITERAL, (String)STRING_LITERAL.getValue());
+//                instructions.add(new Instruction(Operation.globa, offset));
+//                instructions.add(new Instruction(Operation.push, (String)STRING_LITERAL.getValue()));
+//                instructions.add(new Instruction(Operation.store64));
                 instructions.add(new Instruction(Operation.push, offset));
                 result = IdentType.INT;
                 break;
