@@ -1,4 +1,4 @@
-
 fn main() -> void {
-    putint(1);
+    putstr("Hello, world!");
+    putln();
 }

@@ -5,6 +5,9 @@ SymbolEntry{isConstant=true, isInitialized=true, stackOffset=0, identType=string
 VariableName:1main
 SymbolEntry{isConstant=true, isInitialized=true, stackOffset=1, identType=string, level=0, operation=globa, content=main}
 
+VariableName:2Hello, world!
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=2, identType=string, level=0, operation=globa, content=Hello, world!}
+
 
 º¯Êý±íÎª£º
 functionName:_start
@@ -18,7 +21,7 @@ functionNameOffset:0
 functionName:main
 function_param_list:[]
 returnValueType:void
-instructions:[push 1, print_i]
+instructions:[push 2, print_s, println, ret]
 listOfSymbolTable:
     SymbolTable{table={}, level=2, basePoint=1, curPoint=1}
 stackOffset:1
