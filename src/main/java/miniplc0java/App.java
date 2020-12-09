@@ -124,6 +124,10 @@ public class App {
 //                System.out.println(res.substring(i * 2, (i + 1) * 2));
                 output.write(hexStringToBytes(res.substring(i * 2, (i + 1) * 2)));
             }
+//            for (int i = 0; (i + 1) * 2 <= res.length(); i++) {
+////                System.out.println(res.substring(i * 2, (i + 1) * 2));
+//                output.write(hexStringToBytes(res.substring(i * 2, (i + 1) * 2)));
+//            }
             System.out.println(res);
 //            output.println(generator);
 
@@ -137,15 +141,12 @@ public class App {
         if (str == null || str.trim().equals("")) {
             return new byte[0];
         }
-
         byte[] bytes = new byte[str.length() / 2];
         for (int i = 0; i < str.length() / 2; i++) {
             String subStr = str.substring(i * 2, i * 2 + 2);
             bytes[i] = (byte) Integer.parseInt(subStr, 16);
         }
-
         return bytes;
-
     }
 
     private static ArgumentParser buildArgparse() {

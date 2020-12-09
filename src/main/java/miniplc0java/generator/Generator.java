@@ -55,7 +55,7 @@ public class Generator {
         for (Function function: functions) {
             functionsBuilder.append(function);
         }
-        System.out.println(functionList.size());
+        System.out.println(symbolList);
         return magic + version + globals_count + globalsBuilder.toString() + functions_count + functionsBuilder.toString();
     }
 }

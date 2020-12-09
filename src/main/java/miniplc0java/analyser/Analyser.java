@@ -813,9 +813,10 @@ public final class Analyser {
             Token ELSE_KW = expect(TokenType.ELSE_KW);
             boolean elseHasReturn;
             if (peek().getTokenType() == TokenType.IF_KW) {
+                if_kw = expect(TokenType.IF_KW);
                 elseHasReturn = getJumpInstruction(instructions, if_kw, hasReturned, retType);
                 if (!elseHasReturn) {
-                    throw new AnalyzeError(ErrorCode.NoReturn, ELSE_KW.getStartPos());
+                    throw new AnalyzeError(ErrorCode.NoReturn, if_kw.getStartPos());
                 }
             } else {
                 elseHasReturn = analyse_block_stmt(instructions, hasReturned, retType);
@@ -836,6 +837,9 @@ public final class Analyser {
                 break;
             case FALSE:
                 jump = new Instruction(Operation.br_true);
+                break;
+            case INT:
+                jump = new Instruction(Operation.br_false);
                 break;
             default:
                 throw new AnalyzeError(ErrorCode.InvalidIfExpr, if_kw.getStartPos());
