@@ -662,7 +662,7 @@ public final class Analyser {
         }
         String name = (String) nameToken.getValue();
         addFunctionSymbol(name, function_param_list, identType, nameToken.getStartPos());
-        boolean hasReturned = analyse_block_stmt(instructions, (identType == IdentType.VOID));
+        boolean hasReturned = analyse_block_stmt(instructions, (identType == IdentType.VOID), identType);
         if (!hasReturned) {
             throw new AnalyzeError(ErrorCode.NoReturn, nameToken.getStartPos());
         }
@@ -711,13 +711,13 @@ public final class Analyser {
         function_param_list.add(identType);
     }
 
-    private boolean analyse_block_stmt(ArrayList<Instruction> instructions, boolean hasReturned) throws CompileError {
+    private boolean analyse_block_stmt(ArrayList<Instruction> instructions, boolean hasReturned, IdentType retType) throws CompileError {
         SymbolTable symbolTable = addScope();
         Token L_BRACE = expect(TokenType.L_BRACE);
         addFunctionLocalTable(symbolTable, L_BRACE.getStartPos());
         AnalyseStmtResult analyseStmtResult = new AnalyseStmtResult(true, hasReturned);
         while (analyseStmtResult.stmtFlag) {
-            analyseStmtResult = analyse_stmt(instructions, analyseStmtResult.hasReturned);
+            analyseStmtResult = analyse_stmt(instructions, analyseStmtResult.hasReturned, retType);
         }
         expect(TokenType.R_BRACE);
         removeScope();
@@ -741,7 +741,7 @@ public final class Analyser {
         }
     }
 
-    private AnalyseStmtResult analyse_stmt(ArrayList<Instruction> instructions, boolean hasReturned) throws CompileError {
+    private AnalyseStmtResult analyse_stmt(ArrayList<Instruction> instructions, boolean hasReturned, IdentType retType) throws CompileError {
         AnalyseStmtResult analyseStmtResult = new AnalyseStmtResult(true, hasReturned);
         switch (peek().getTokenType()) {
             case IDENT:
@@ -756,7 +756,7 @@ public final class Analyser {
                 analyse_const_decl_stmt(instructions);
                 break;
             case IF_KW:
-                analyse_if_stmt(instructions, hasReturned);
+                analyse_if_stmt(instructions, hasReturned, retType);
 //                if (!ifHasReturned) {
 //                    throw new AnalyzeError(ErrorCode.NoReturn, peek().getStartPos());
 //                }
@@ -764,7 +764,7 @@ public final class Analyser {
             case WHILE_KW:
                 this.whileStack.add(instructions.size());
                 this.breakStack.add(new ArrayList<>());
-                analyse_while_stmt(instructions, hasReturned);
+                analyse_while_stmt(instructions, hasReturned, retType);
 //                if (!whileHasReturned) {
 //                    throw new AnalyzeError(ErrorCode.NoReturn, peek().getStartPos());
 //                }
@@ -781,11 +781,11 @@ public final class Analyser {
                 analyse_continue_stmt(instructions);
                 break;
             case RETURN_KW:
-                analyse_return_stmt(instructions);
+                analyse_return_stmt(instructions, hasReturned, retType);
                 analyseStmtResult.hasReturned = true;
                 break;
             case L_BRACE:
-                analyseStmtResult.hasReturned = analyse_block_stmt(instructions, hasReturned);
+                analyseStmtResult.hasReturned = analyse_block_stmt(instructions, hasReturned, retType);
                 break;
             case SEMICOLON:
                 analyse_empty_stmt();
@@ -803,9 +803,9 @@ public final class Analyser {
         expect(TokenType.SEMICOLON);
     }
 
-    private void analyse_if_stmt(ArrayList<Instruction> instructions, boolean hasReturned) throws CompileError {
+    private void analyse_if_stmt(ArrayList<Instruction> instructions, boolean hasReturned, IdentType retType) throws CompileError {
         Token if_kw = expect(TokenType.IF_KW);
-        boolean ifHasReturned = getJumpInstruction(instructions, if_kw, hasReturned);
+        boolean ifHasReturned = getJumpInstruction(instructions, if_kw, hasReturned, retType);
         if (!ifHasReturned) {
             throw new AnalyzeError(ErrorCode.NoReturn, if_kw.getStartPos());
         }
@@ -813,12 +813,12 @@ public final class Analyser {
             Token ELSE_KW = expect(TokenType.ELSE_KW);
             boolean elseHasReturn;
             if (peek().getTokenType() == TokenType.IF_KW) {
-                elseHasReturn = getJumpInstruction(instructions, if_kw, hasReturned);
+                elseHasReturn = getJumpInstruction(instructions, if_kw, hasReturned, retType);
                 if (!elseHasReturn) {
                     throw new AnalyzeError(ErrorCode.NoReturn, ELSE_KW.getStartPos());
                 }
             } else {
-                elseHasReturn = analyse_block_stmt(instructions, hasReturned);
+                elseHasReturn = analyse_block_stmt(instructions, hasReturned, retType);
 //                if (!elseHasReturn) {
 //                    throw new AnalyzeError(ErrorCode.NoReturn, ELSE_KW.getStartPos());
 //                }
@@ -827,7 +827,7 @@ public final class Analyser {
         }
     }
 
-    private boolean getJumpInstruction(ArrayList<Instruction> instructions, Token if_kw, boolean hasReturn) throws CompileError {
+    private boolean getJumpInstruction(ArrayList<Instruction> instructions, Token if_kw, boolean hasReturn, IdentType retType) throws CompileError {
         IdentType exprRet = analyse_expr(instructions, TokenType.None);
         Instruction jump;
         switch (exprRet) {
@@ -842,16 +842,16 @@ public final class Analyser {
         }
         instructions.add(jump);
         int jumpLength = instructions.size();
-        boolean jumpHasReturned = analyse_block_stmt(instructions, hasReturn);
+        boolean jumpHasReturned = analyse_block_stmt(instructions, hasReturn, retType);
         jumpLength = instructions.size() - jumpLength;
         jump.setValue(jumpLength);
         return jumpHasReturned;
     }
 
-    private boolean analyse_while_stmt(ArrayList<Instruction> instructions, boolean hasReturned) throws CompileError {
+    private boolean analyse_while_stmt(ArrayList<Instruction> instructions, boolean hasReturned, IdentType retType) throws CompileError {
         Token while_kw = expect(TokenType.WHILE_KW);
         int jumpBackwardLength = instructions.size();
-        boolean jumpHasReturned = getJumpInstruction(instructions, while_kw, hasReturned);
+        boolean jumpHasReturned = getJumpInstruction(instructions, while_kw, hasReturned, retType);
         jumpBackwardLength = - (instructions.size() - jumpBackwardLength + 2);
         instructions.add(new Instruction(Operation.br, jumpBackwardLength));
         return jumpHasReturned;
@@ -878,11 +878,11 @@ public final class Analyser {
     }
 
     // TODO: return
-    private void analyse_return_stmt(ArrayList<Instruction> instructions) throws CompileError {
-        expect(TokenType.RETURN_KW);
-        if (peek().getTokenType() == TokenType.IDENT || peek().getTokenType() == TokenType.L_PAREN || peek().getTokenType() == TokenType.MINUS || peek().getTokenType() == TokenType.UINT_LITERAL || peek().getTokenType() == TokenType.DOUBLE_LITERAL || peek().getTokenType() == TokenType.STRING_LITERAL || peek().getTokenType() == TokenType.CHAR_LITERAL) {
+    private void analyse_return_stmt(ArrayList<Instruction> instructions, boolean hasReturned, IdentType retType) throws CompileError {
+        Token ret = expect(TokenType.RETURN_KW);
+        if (retType != IdentType.VOID) {
             instructions.add(new Instruction(Operation.arga, 0));
-            analyse_expr(instructions, TokenType.None);
+            checkTypeMatch(retType, analyse_expr(instructions, TokenType.None), ret.getStartPos());
             instructions.add(new Instruction(Operation.store64, 0));
         }
         instructions.add(new Instruction(Operation.ret));
