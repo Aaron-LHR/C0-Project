@@ -42,7 +42,7 @@ public class StringIter {
         }
         while (scanner.hasNext()) {
             String line = scanner.nextLine();
-            linesBuffer.add(scanner.nextLine() + '\n');
+            linesBuffer.add(line + '\n');
             System.out.println(line);
         }
         // todo:check read \n?
