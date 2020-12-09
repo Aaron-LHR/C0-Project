@@ -29,11 +29,8 @@ SymbolEntry{isConstant=true, isInitialized=true, stackOffset=8, identType=string
 VariableName:9aaa
 SymbolEntry{isConstant=true, isInitialized=true, stackOffset=9, identType=string, level=0, operation=globa}
 
-VariableName:a
-SymbolEntry{isConstant=false, isInitialized=false, stackOffset=10, identType=int, level=0, operation=globa}
-
 VariableName:10_start
-SymbolEntry{isConstant=true, isInitialized=true, stackOffset=11, identType=string, level=0, operation=globa}
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=10, identType=string, level=0, operation=globa}
 
 
 º¯Êý±íÎª£º
@@ -104,7 +101,7 @@ functionNameOffset:7
 functionName:main
 function_param_list:[]
 returnValueType:void
-instructions:[globa 9, push 0, store64, push 9, print_s]
+instructions:[globa 9, push aaa, store64, push 9, print_s]
 listOfSymbolTable:
     SymbolTable{table={}, level=2, basePoint=8, curPoint=8}
 stackOffset:8
@@ -113,9 +110,9 @@ functionNameOffset:8
 functionName:_start
 function_param_list:[]
 returnValueType:void
-instructions:[globa 10, store64]
+instructions:[]
 listOfSymbolTable:
     stackOffset:9
-functionNameOffset:11
+functionNameOffset:10
 
 

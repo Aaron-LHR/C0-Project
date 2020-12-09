@@ -189,6 +189,14 @@ public class Instruction {
             case println:
                 return String.format("%s", this.opt);
             case push:
+                switch (identType) {
+                    case INT:
+                        return String.format("%s %s", this.opt, this.intValue);
+                    case DOUBLE:
+                        return String.format("%s %s", this.opt, this.doubleValue);
+                    case STRING_LITERAL:
+                        return String.format("%s %s", this.opt, this.stringValue);
+                }
             case loca:
             case arga:
             case globa:
