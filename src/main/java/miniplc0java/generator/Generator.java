@@ -38,6 +38,7 @@ public class Generator {
             globals.add(new Global(symbolEntry.isConstant(), symbolEntry.getIdentType(), symbolEntry.getStringContent()));
         }
         functions_count = String.format("%08x", symbolTable.size());
+//        System.out.println(String.format("%08x", symbolTable.size()));
         for (Map.Entry<String, FunctionEntry> entry: functionList) {
             FunctionEntry functionEntry = entry.getValue();
             functions.add(new Function(functionEntry.getFunctionNameOffset(), functionEntry.getReturnValueType(), functionEntry.getFunction_param_list().size(), functionEntry.getSizeOfListOfSymbolTable(), functionEntry.getInstructions()));
@@ -54,6 +55,7 @@ public class Generator {
         for (Function function: functions) {
             functionsBuilder.append(function);
         }
-        return magic + version + globals_count + globalsBuilder.toString() + functionsBuilder.toString();
+//        System.out.println(functionsBuilder.toString());
+        return magic + version + globals_count + globalsBuilder.toString() + functions_count + functionsBuilder.toString();
     }
 }

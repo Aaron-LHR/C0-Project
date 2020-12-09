@@ -666,7 +666,9 @@ public final class Analyser {
         if (!hasReturned) {
             throw new AnalyzeError(ErrorCode.NoReturn, nameToken.getStartPos());
         }
-        // 加入符号表
+        if (identType == IdentType.VOID) {
+            instructions.add(new Instruction(Operation.ret));
+        }
 
         setFunctionSymbol(name, function_param_list, identType, instructions, (ArrayList<SymbolTable>) this.curFunctionSymbolTable.clone(), nameToken.getStartPos());
 
