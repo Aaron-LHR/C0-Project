@@ -126,6 +126,7 @@ public class Instruction {
             case loca:
             case arga:
             case globa:
+            case stackalloc:
             case call:
             case br:
             case br_false:
@@ -200,6 +201,7 @@ public class Instruction {
             case loca:
             case arga:
             case globa:
+            case stackalloc:
             case call:
             case br:
             case br_false:

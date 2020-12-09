@@ -917,7 +917,16 @@ public final class Analyser {
                             analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
                             instructions.add(standardFunctionInstruction.get(functionName));
                         } else {
-                            instructions.add(new Instruction(Operation.push, 0));  // 压返回值
+                            switch (functionEntry.getReturnValueType()) {
+                                case INT:
+                                case DOUBLE:
+                                    instructions.add(new Instruction(Operation.stackalloc, 1));  // 压返回值
+//                                case VOID:
+//                                    instructions.add(new Instruction(Operation.stackalloc, 0));  // 压返回值
+//                                default:
+//                                    throw new AnalyzeError(ErrorCode.InvalidReturnValueType, nameToken.getStartPos());
+                            }
+//                            instructions.add(new Instruction(Operation.push, 0));  // 压返回值
                             analyse_call_param_list(functionEntry.getFunction_param_list(), instructions, nameToken.getStartPos()); // 压参数
                             instructions.add(new Instruction(Operation.call, functionEntry.getStackOffset()));
                         }

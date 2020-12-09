@@ -166,13 +166,36 @@ public class Tokenizer {
         while(!it.isEOF()) {
             char peek = it.peekChar();
             if (peek == '\\') {
-                stringBuilder.append(it.nextChar());
+//                stringBuilder.append(it.nextChar());
                 peek = it.peekChar();
-                if (peek == '\'' || peek == '\"' || peek == '\\' || peek == 'n' || peek == 't' || peek == 'r') {
-                    stringBuilder.append(it.nextChar());
-                } else {
-                    throw new TokenizeError(ErrorCode.InvalidStringLiteral ,it.currentPos());
+                switch (peek) {
+                    case '\'':
+                        stringBuilder.append('\'');
+                        break;
+                    case '\"':
+                        stringBuilder.append('\"');
+                        break;
+                    case '\\':
+                        stringBuilder.append('\\');
+                        break;
+                    case 'n':
+                        stringBuilder.append('\n');
+                        break;
+                    case 't':
+                        stringBuilder.append('\t');
+                        break;
+                    case 'r':
+                        stringBuilder.append('\r');
+                        break;
+                    default:
+                        throw new TokenizeError(ErrorCode.InvalidStringLiteral ,it.currentPos());
                 }
+                it.nextChar();
+//                if (peek == '\'' || peek == '\"' || peek == '\\' || peek == 'n' || peek == 't' || peek == 'r') {
+//                    stringBuilder.append(it.nextChar());
+//                } else {
+//                    throw new TokenizeError(ErrorCode.InvalidStringLiteral ,it.currentPos());
+//                }
             } else if (peek == '\"') {
                 it.nextChar();
                 break;
