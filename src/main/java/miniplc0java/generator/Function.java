@@ -19,7 +19,7 @@ public class Function {
         if (ret_identType == IdentType.VOID) {
             this.ret_slots = "00000000";
         } else {
-            this.ret_slots = "00000008";
+            this.ret_slots = "00000001";
         }
         this.param_slots = String.format("%08x", param_slots);
         this.loc_slots = String.format("%08x", loc_slots);
@@ -35,6 +35,7 @@ public class Function {
         for (String item: body_items) {
             stringBuilder.append(item);
         }
+        System.out.println("re:" + ret_slots);
         return name + ret_slots + param_slots + loc_slots + body_count + stringBuilder.toString();
     }
 }

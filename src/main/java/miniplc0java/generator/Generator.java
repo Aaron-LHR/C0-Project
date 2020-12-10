@@ -41,6 +41,9 @@ public class Generator {
 //        System.out.println(String.format("%08x", symbolTable.size()));
         for (Map.Entry<String, FunctionEntry> entry: functionList) {
             FunctionEntry functionEntry = entry.getValue();
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue().getSizeOfListOfSymbolTable());
+            System.out.println(entry.getValue().getFunction_param_list().size());
             functions.add(new Function(functionEntry.getFunctionNameOffset(), functionEntry.getReturnValueType(), functionEntry.getFunction_param_list().size(), functionEntry.getSizeOfListOfSymbolTable(), functionEntry.getInstructions()));
         }
     }

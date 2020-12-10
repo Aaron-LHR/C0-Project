@@ -23,7 +23,7 @@ public class Global {
             this.stringLength = content.length();
             this.valueCount = String.format("%08x", stringLength);
         } else {
-            this.valueCount = "00000000";
+            this.valueCount = "00000008";
             this.stringLength = 8;
         }
     }

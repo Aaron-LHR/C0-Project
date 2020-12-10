@@ -530,8 +530,11 @@ public final class Analyser {
 //                    addFunctionLocalTable(this.listOfSymbolTable.get(0), new Pos(0, 0));
                     this.curFunctionSymbolTable.clear();
                     this.curFunctionSymbolTable.add(this.listOfSymbolTable.get(0));
-                    instructions.add(new Instruction(Operation.stackalloc, 1));
-                    instructions.add(new Instruction(Operation.call, getFunctionSymbol("main", new Pos(0, 0)).getStackOffset()));
+                    FunctionEntry mainFunction = getFunctionSymbol("main", new Pos(0, 0));
+                    if (mainFunction.getReturnValueType() != IdentType.VOID) {
+                        instructions.add(new Instruction(Operation.stackalloc, 1));
+                    }
+                    instructions.add(new Instruction(Operation.call, mainFunction.getStackOffset()));
                     setFunctionSymbol("_start", new ArrayList<>(), IdentType.VOID, instructions, new ArrayList<SymbolTable>(), new Pos(0, 0));
                     return;
             }
@@ -650,10 +653,12 @@ public final class Analyser {
         switch ((String) type.getValue()) {
             case "int":
                 identType = IdentType.INT;
+//                function_param_list.add(0, identType);
 //                addSymbol("0returnValue", false, false, nameToken.getStartPos(), identType);
                 break;
             case "double":
                 identType = IdentType.DOUBLE;
+//                function_param_list.add(0, identType);
 //                addSymbol("0returnValue", false, false, nameToken.getStartPos(), identType);
                 break;
             case "void":
