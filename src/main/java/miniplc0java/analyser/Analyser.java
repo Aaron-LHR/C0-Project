@@ -576,16 +576,16 @@ public final class Analyser {
             default:
                 throw new AnalyzeError(ErrorCode.InvalidIdentType, type.getStartPos());
         }
-        Instruction address;
-        if (curIsGlobal()) {
-            address = new Instruction(Operation.globa);
-        } else {
-            address = new Instruction(Operation.loca);
-        }
-        instructions.add(address);
         // 下个 token 是等于号吗？如果是的话分析初始化
         Token operator = nextIf(TokenType.ASSIGN);
+        Instruction address = null;
         if (operator != null) {
+            if (curIsGlobal()) {
+                address = new Instruction(Operation.globa);
+            } else {
+                address = new Instruction(Operation.loca);
+            }
+            instructions.add(address);
             checkTypeMatch(identType, analyse_expr(instructions, TokenType.None), operator.getStartPos());
             initialized = true;
         }
@@ -596,8 +596,10 @@ public final class Analyser {
         String name = (String) nameToken.getValue(); /* 名字 */
         var offset = addSymbol(name, initialized, false, /* 当前位置 */ nameToken.getStartPos(), identType);
 
-        address.setValue(offset);
-        instructions.add(new Instruction(Operation.store64));
+        if (initialized) {
+            address.setValue(offset);
+            instructions.add(new Instruction(Operation.store64));
+        }
     }
 
     private void analyse_const_decl_stmt(ArrayList<Instruction> instructions) throws CompileError {
@@ -854,7 +856,7 @@ public final class Analyser {
         instructions.add(jump);
         int jumpLength = instructions.size();
         boolean jumpHasReturned = analyse_block_stmt(instructions, hasReturn, retType);
-        jumpLength = instructions.size() - jumpLength;
+        jumpLength = instructions.size() - jumpLength + 1;
         jump.setValue(jumpLength);
         return jumpHasReturned;
     }
@@ -863,7 +865,7 @@ public final class Analyser {
         Token while_kw = expect(TokenType.WHILE_KW);
         int jumpBackwardLength = instructions.size();
         boolean jumpHasReturned = getJumpInstruction(instructions, while_kw, hasReturned, retType);
-        jumpBackwardLength = - (instructions.size() - jumpBackwardLength + 2);
+        jumpBackwardLength = - (instructions.size() - jumpBackwardLength + 1);
         instructions.add(new Instruction(Operation.br, jumpBackwardLength));
         return jumpHasReturned;
     }
