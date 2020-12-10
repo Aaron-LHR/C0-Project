@@ -829,28 +829,39 @@ public final class Analyser {
     }
 
     private boolean analyse_if_stmt(ArrayList<Instruction> instructions, boolean hasReturned, IdentType retType) throws CompileError {
+        ArrayList<Instruction> jumpList = new ArrayList<>();
         Token if_kw = expect(TokenType.IF_KW);
-        Instruction jump = getIfJumpInstruction(instructions, if_kw, hasReturned, retType);
+        Instruction jumpNoStaified = getIfJumpInstruction(instructions, if_kw, hasReturned, retType);
 //        if (!ifHasReturned) {
 //            throw new AnalyzeError(ErrorCode.NoReturn, if_kw.getStartPos());
 //        }
         while (check(TokenType.ELSE_KW)) {
+            jumpNoStaified.setValue(jumpNoStaified.getIntValue() + 1);
             Token ELSE_KW = expect(TokenType.ELSE_KW);
             boolean elseHasReturn;
             if (peek().getTokenType() == TokenType.IF_KW) {
                 if_kw = expect(TokenType.IF_KW);
-                jump = getIfJumpInstruction(instructions, if_kw, hasReturned, retType);
+                Instruction jumpStaified = new Instruction(Operation.br, instructions.size());
+                instructions.add(jumpStaified);
+                jumpList.add(jumpStaified);
+                jumpNoStaified = getIfJumpInstruction(instructions, if_kw, hasReturned, retType);
 //                if (!elseHasReturn) {
 //                    throw new AnalyzeError(ErrorCode.NoReturn, if_kw.getStartPos());
 //                }
             } else {
-                jump.setValue(jump.getIntValue() + 1);
-                return getElseJumpInstruction(instructions, retType);
+
+                hasReturned =  getElseJumpInstruction(instructions, retType, hasReturned);
+                break;
 //                elseHasReturn = analyse_block_stmt(instructions, hasReturned, retType);
 //                if (!elseHasReturn) {
 //                    throw new AnalyzeError(ErrorCode.NoReturn, ELSE_KW.getStartPos());
 //                }
             }
+        }
+        System.out.println("s:" + instructions.size());
+        for (Instruction jump: jumpList) {
+            System.out.println(jump.getIntValue());
+            jump.setValue(instructions.size() - jump.getIntValue() - 1);
         }
         return hasReturned;
     }
@@ -874,18 +885,18 @@ public final class Analyser {
         instructions.add(jump);
         int jumpLength = instructions.size();
         boolean jumpHasReturned = analyse_block_stmt(instructions, hasReturn, retType);
-        System.out.println(instructions.size());
-        System.out.println(jumpLength);
+//        System.out.println(instructions.size());
+//        System.out.println(jumpLength);
         jumpLength = instructions.size() - jumpLength;
         jump.setValue(jumpLength);
         return jump;
     }
 
-    private boolean getElseJumpInstruction(ArrayList<Instruction> instructions, IdentType retType) throws CompileError {
+    private boolean getElseJumpInstruction(ArrayList<Instruction> instructions, IdentType retType, boolean hasReturn) throws CompileError {
         Instruction jump = new Instruction(Operation.br);
         instructions.add(jump);
         int jumpLength = instructions.size();
-        boolean jumpHasReturned = analyse_block_stmt(instructions, true, retType);
+        boolean jumpHasReturned = analyse_block_stmt(instructions, hasReturn, retType);
         jumpLength = instructions.size() - jumpLength;
         jump.setValue(jumpLength);
         return jumpHasReturned;
@@ -1056,7 +1067,7 @@ public final class Analyser {
                 }
                 Token minus = expect(TokenType.MINUS);
                 result = analyse_expr(instructions, TokenType.PRE_MINUS);
-                System.out.println(result);
+//                System.out.println(result);
                 Operation negative;
                 if (result == IdentType.INT) {
                     negative = Operation.neg_i;
