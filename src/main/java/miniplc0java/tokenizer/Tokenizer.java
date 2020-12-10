@@ -167,6 +167,7 @@ public class Tokenizer {
             char peek = it.peekChar();
             if (peek == '\\') {
 //                stringBuilder.append(it.nextChar());
+                it.nextChar();
                 peek = it.peekChar();
                 switch (peek) {
                     case '\'':

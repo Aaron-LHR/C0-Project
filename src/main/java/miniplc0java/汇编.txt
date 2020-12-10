@@ -5,6 +5,21 @@ SymbolEntry{isConstant=true, isInitialized=true, stackOffset=0, identType=string
 VariableName:1main
 SymbolEntry{isConstant=true, isInitialized=true, stackOffset=1, identType=string, level=0, operation=globa, content=main}
 
+VariableName:2=============
+| #  /\ + " |
+|  /:""'\\^||
+|/|\?"'/\  !|
+|\r \ #s    |
+|\a /\  /\\v|
+=============
+SymbolEntry{isConstant=true, isInitialized=true, stackOffset=2, identType=string, level=0, operation=globa, content==============
+| #  /\ + " |
+|  /:""'\\^||
+|/|\?"'/\  !|
+|\r \ #s    |
+|\a /\  /\\v|
+=============}
+
 
 º¯Êý±íÎª£º
 functionName:_start
@@ -18,11 +33,9 @@ functionNameOffset:0
 functionName:main
 function_param_list:[]
 returnValueType:void
-instructions:[loca 0, push 0, store64, loca 0, load64, push 10, cmp_i, set_lt, br_false 3, loca 0, load64, print_i, br 5, loca 0, load64, push 1, add_i, print_i, ret]
+instructions:[push 2, print_s, ret]
 listOfSymbolTable:
-    SymbolTable{table={c=SymbolEntry{isConstant=false, isInitialized=true, stackOffset=0, identType=int, level=2, operation=loca, content=}}, level=2, basePoint=0, curPoint=1}
-SymbolTable{table={}, level=3, basePoint=1, curPoint=1}
-SymbolTable{table={}, level=3, basePoint=1, curPoint=1}
+    SymbolTable{table={}, level=2, basePoint=0, curPoint=0}
 stackOffset:1
 functionNameOffset:1
 

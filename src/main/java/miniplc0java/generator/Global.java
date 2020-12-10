@@ -33,7 +33,7 @@ public class Global {
         if (identType == IdentType.STRING_LITERAL) {
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < content.length(); i++) {
-                stringBuilder.append(String.format("%x", (int) content.charAt(i)));
+                stringBuilder.append(String.format("%02x", (int) content.charAt(i)));
             }
             return isConst + valueCount + stringBuilder.toString();
         } else {
