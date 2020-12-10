@@ -113,7 +113,7 @@ public class Tokenizer {
         Pos start = it.currentPos();
         while(!it.isEOF()) {
             char peek = it.peekChar();
-            if (Character.isLetterOrDigit(peek)) {
+            if (Character.isLetterOrDigit(peek) || peek == '_') {
                 stringBuilder.append(it.nextChar());
             } else {
                 break;

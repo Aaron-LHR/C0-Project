@@ -29,6 +29,14 @@ public class SymbolTable {
         return this.curPoint++;
     }
 
+    public void setBasePoint(int basePoint) {
+        this.basePoint = basePoint;
+        this.curPoint = basePoint;
+        for (SymbolEntry symbolEntry: table.values()) {
+            symbolEntry.setStackOffset(symbolEntry.getStackOffset() + 1);
+        }
+    }
+
     public int getLevel() {
         return level;
     }

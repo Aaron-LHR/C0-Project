@@ -456,6 +456,20 @@ public final class Analyser {
         return symbolTable;
     }
 
+    private SymbolTable addScope(int basePoint) {
+        int level;
+        SymbolTable lastSymbolTable = listOfSymbolTable.get(listOfSymbolTable.size() - 1);
+        level = lastSymbolTable.getLevel() + 1;
+        SymbolTable symbolTable = new SymbolTable(level, basePoint);
+        listOfSymbolTable.add(symbolTable);
+        return symbolTable;
+    }
+
+    private void setScopeBasePoint(int basePoint) {
+        SymbolTable lastSymbolTable = listOfSymbolTable.get(listOfSymbolTable.size() - 1);
+        lastSymbolTable.setBasePoint(basePoint);
+    }
+
     private void removeScope() {
         this.listOfSymbolTable.remove(this.listOfSymbolTable.size() - 1);
     }
@@ -655,11 +669,13 @@ public final class Analyser {
         switch ((String) type.getValue()) {
             case "int":
                 identType = IdentType.INT;
+                setScopeBasePoint(1);
 //                function_param_list.add(0, identType);
 //                addSymbol("0returnValue", false, false, nameToken.getStartPos(), identType);
                 break;
             case "double":
                 identType = IdentType.DOUBLE;
+                setScopeBasePoint(1);
 //                function_param_list.add(0, identType);
 //                addSymbol("0returnValue", false, false, nameToken.getStartPos(), identType);
                 break;
@@ -814,20 +830,21 @@ public final class Analyser {
 
     private void analyse_if_stmt(ArrayList<Instruction> instructions, boolean hasReturned, IdentType retType) throws CompileError {
         Token if_kw = expect(TokenType.IF_KW);
-        boolean ifHasReturned = getIfJumpInstruction(instructions, if_kw, hasReturned, retType);
-        if (!ifHasReturned) {
-            throw new AnalyzeError(ErrorCode.NoReturn, if_kw.getStartPos());
-        }
+        Instruction jump = getIfJumpInstruction(instructions, if_kw, hasReturned, retType);
+//        if (!ifHasReturned) {
+//            throw new AnalyzeError(ErrorCode.NoReturn, if_kw.getStartPos());
+//        }
         while (check(TokenType.ELSE_KW)) {
             Token ELSE_KW = expect(TokenType.ELSE_KW);
             boolean elseHasReturn;
             if (peek().getTokenType() == TokenType.IF_KW) {
                 if_kw = expect(TokenType.IF_KW);
-                elseHasReturn = getIfJumpInstruction(instructions, if_kw, hasReturned, retType);
-                if (!elseHasReturn) {
-                    throw new AnalyzeError(ErrorCode.NoReturn, if_kw.getStartPos());
-                }
+                jump = getIfJumpInstruction(instructions, if_kw, hasReturned, retType);
+//                if (!elseHasReturn) {
+//                    throw new AnalyzeError(ErrorCode.NoReturn, if_kw.getStartPos());
+//                }
             } else {
+                jump.setValue(jump.getIntValue() + 1);
                 getElseJumpInstruction(instructions, retType);
 //                elseHasReturn = analyse_block_stmt(instructions, hasReturned, retType);
 //                if (!elseHasReturn) {
@@ -838,7 +855,7 @@ public final class Analyser {
         }
     }
 
-    private boolean getIfJumpInstruction(ArrayList<Instruction> instructions, Token if_kw, boolean hasReturn, IdentType retType) throws CompileError {
+    private Instruction getIfJumpInstruction(ArrayList<Instruction> instructions, Token if_kw, boolean hasReturn, IdentType retType) throws CompileError {
         IdentType exprRet = analyse_expr(instructions, TokenType.None);
         Instruction jump;
         switch (exprRet) {
@@ -857,9 +874,11 @@ public final class Analyser {
         instructions.add(jump);
         int jumpLength = instructions.size();
         boolean jumpHasReturned = analyse_block_stmt(instructions, hasReturn, retType);
-        jumpLength = instructions.size() - jumpLength + 1;
+        System.out.println(instructions.size());
+        System.out.println(jumpLength);
+        jumpLength = instructions.size() - jumpLength;
         jump.setValue(jumpLength);
-        return jumpHasReturned;
+        return jump;
     }
 
     private boolean getElseJumpInstruction(ArrayList<Instruction> instructions, IdentType retType) throws CompileError {
