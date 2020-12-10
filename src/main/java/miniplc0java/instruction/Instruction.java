@@ -138,7 +138,7 @@ public class Instruction {
                     case INT:
                         return String.format("%s%016x", this.opt.getGenerateInstruction(), (long)this.intValue);
                     case DOUBLE:
-                        return String.format("%s%x", this.opt.getGenerateInstruction(), Double.doubleToLongBits(this.doubleValue));
+                        return String.format("%s%016x", this.opt.getGenerateInstruction(), Double.doubleToLongBits(this.doubleValue));
 //                    case STRING_LITERAL:
 //                        StringBuilder stringBuilder = new StringBuilder();
 //                        for (int i = 0; i < stringValue.length(); i++) {

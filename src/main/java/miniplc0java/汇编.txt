@@ -18,13 +18,9 @@ functionNameOffset:0
 functionName:main
 function_param_list:[]
 returnValueType:void
-instructions:[loca 1, push 0, store64, loca 2, push 1024, store64, loca 0, push 5, store64, loca 1, load64, loca 2, load64, cmp_i, br_false 42, loca 3, loca 1, load64, loca 2, load64, add_i, push 1, add_i, push 2, div_i, store64, loca 3, load64, loca 0, load64, cmp_i, set_gt, br_false 4, loca 2, loca 3, load64, store64, loca 3, load64, loca 0, load64, cmp_i, br_true 9, loca 1, loca 3, load64, store64, loca 2, loca 3, load64, store64, br 4, loca 1, loca 3, load64, store64, br -48, ret]
+instructions:[loca 0, push 0.0, store64, loca 0, loca 0, load64, push 1, itof, add_f, store64, ret]
 listOfSymbolTable:
-    SymbolTable{table={high=SymbolEntry{isConstant=false, isInitialized=true, stackOffset=2, identType=int, level=2, operation=loca, content=}, low=SymbolEntry{isConstant=false, isInitialized=true, stackOffset=1, identType=int, level=2, operation=loca, content=}, mid=SymbolEntry{isConstant=false, isInitialized=false, stackOffset=3, identType=int, level=2, operation=loca, content=}, needle=SymbolEntry{isConstant=false, isInitialized=false, stackOffset=0, identType=int, level=2, operation=loca, content=}}, level=2, basePoint=0, curPoint=4}
-SymbolTable{table={}, level=3, basePoint=4, curPoint=4}
-SymbolTable{table={}, level=4, basePoint=4, curPoint=4}
-SymbolTable{table={}, level=4, basePoint=4, curPoint=4}
-SymbolTable{table={}, level=4, basePoint=4, curPoint=4}
+    SymbolTable{table={rtv=SymbolEntry{isConstant=false, isInitialized=true, stackOffset=0, identType=double, level=2, operation=loca, content=}}, level=2, basePoint=0, curPoint=1}
 stackOffset:1
 functionNameOffset:1
 
