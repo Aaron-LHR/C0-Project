@@ -91,7 +91,7 @@ public class Tokenizer {
             }
         } else {
             try {
-                return new Token(TokenType.UINT_LITERAL, Integer.parseInt(result), start, end);
+                return new Token(TokenType.UINT_LITERAL, Long.parseLong(result), start, end);
             } catch (NumberFormatException e) {
                 throw new TokenizeError(ErrorCode.IntegerOverflow ,it.currentPos());
             }

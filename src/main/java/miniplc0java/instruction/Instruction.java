@@ -10,9 +10,11 @@ import java.util.Objects;
 public class Instruction {
     private Operation opt;
     int intValue;
+    long longValue;
     double doubleValue;
     String stringValue;
     IdentType identType;
+    boolean isLong = false;
 
     public Instruction(Operation opt) {
         this.opt = opt;
@@ -23,6 +25,13 @@ public class Instruction {
         this.opt = opt;
         this.intValue = intValue;
         this.identType = IdentType.INT;
+    }
+
+    public Instruction(Operation opt, long longValue) {
+        this.opt = opt;
+        this.longValue = longValue;
+        this.identType = IdentType.INT;
+        this.isLong = true;
     }
 
     public Instruction(Operation opt, double doubleValue) {
@@ -136,7 +145,11 @@ public class Instruction {
 //                System.out.println("push");
                 switch (identType) {
                     case INT:
-                        return String.format("%s%016x", this.opt.getGenerateInstruction(), (long)this.intValue);
+                        if (isLong) {
+                            return String.format("%s%016x", this.opt.getGenerateInstruction(), this.longValue);
+                        } else {
+                            return String.format("%s%016x", this.opt.getGenerateInstruction(), (long)this.intValue);
+                        }
                     case DOUBLE:
                         return String.format("%s%016x", this.opt.getGenerateInstruction(), Double.doubleToLongBits(this.doubleValue));
 //                    case STRING_LITERAL:

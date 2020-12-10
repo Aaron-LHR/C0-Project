@@ -1080,7 +1080,7 @@ public final class Analyser {
                 break;
             case UINT_LITERAL:  // literal_expr
                 Token uint = expect(TokenType.UINT_LITERAL);
-                int intValue = (int)uint.getValue();
+                long intValue = (long)uint.getValue();
                 instructions.add(new Instruction(Operation.push, intValue));
                 result = IdentType.INT;
                 break;
