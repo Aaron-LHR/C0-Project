@@ -940,7 +940,7 @@ public final class Analyser {
         if (this.whileStack.size() == 0) {
             throw new AnalyzeError(ErrorCode.BreakError, break_kw.getStartPos());
         }
-        Instruction breakInstruction = new Instruction(Operation.br);
+        Instruction breakInstruction = new Instruction(Operation.br, instructions.size());
         instructions.add(breakInstruction);
         this.breakStack.get(this.breakStack.size() - 1).add(breakInstruction);
         expect(TokenType.SEMICOLON);
@@ -951,7 +951,7 @@ public final class Analyser {
         if (this.whileStack.size() == 0) {
             throw new AnalyzeError(ErrorCode.ContinueError, continue_kw.getStartPos());
         }
-        instructions.add(new Instruction(Operation.br, - (instructions.size() - this.whileStack.get(this.whileStack.size() - 1) + 2)));
+        instructions.add(new Instruction(Operation.br, - (instructions.size() - this.whileStack.get(this.whileStack.size() - 1) + 1)));
         expect(TokenType.SEMICOLON);
     }
 
