@@ -80,121 +80,123 @@ public final class Analyser {
 //        OPGMatrix[operatorPriority.get(TokenType.PLUS)][operatorPriority.get(TokenType.PLUS)] = 1;  // >
     }
 
+    @SuppressWarnings("unchecked")
     private void buildBinaryOperationTable() {
         HashMap<IdentType, ArrayList<Operation>> intOrDouble = new HashMap<>();
         ArrayList<Operation> operations = new ArrayList<>();
 
         operations.add(Operation.add_i);
-        intOrDouble.put(IdentType.INT, operations);
+        intOrDouble.put(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.add_f);
-        intOrDouble.put(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.PLUS, intOrDouble);
+        intOrDouble.put(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.PLUS, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.sub_i);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.sub_f);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.MINUS, intOrDouble);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.MINUS, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.mul_i);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.mul_f);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.MUL, intOrDouble);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.MUL, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.div_i);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.div_f);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
 //        intOrDouble.replace(IdentType.DOUBLE, Operation.div_u);
-        binaryOperation.put(TokenType.DIV, intOrDouble);
+        binaryOperation.put(TokenType.DIV, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.EQ, intOrDouble);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.EQ, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.EQ, intOrDouble);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.EQ, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.EQ, intOrDouble);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.EQ, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.EQ, intOrDouble);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.EQ, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.NEQ, intOrDouble);
-
-        operations = new ArrayList<>();
-        operations.add(Operation.cmp_i);
-        operations.add(Operation.set_gt);
-        intOrDouble.replace(IdentType.INT, operations);
-        operations = new ArrayList<>();
-        operations.add(Operation.cmp_f);
-        operations.add(Operation.set_gt);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.GT, intOrDouble);
-
-        operations = new ArrayList<>();
-        operations.add(Operation.cmp_i);
-        operations.add(Operation.set_lt);
-        intOrDouble.replace(IdentType.INT, operations);
-        operations = new ArrayList<>();
-        operations.add(Operation.cmp_f);
-        operations.add(Operation.set_lt);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.LT, intOrDouble);
-
-        operations = new ArrayList<>();
-        operations.add(Operation.cmp_i);
-        operations.add(Operation.set_lt);
-        intOrDouble.replace(IdentType.INT, operations);
-        operations = new ArrayList<>();
-        operations.add(Operation.cmp_f);
-        operations.add(Operation.set_lt);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.GE, intOrDouble);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.NEQ, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
 
         operations = new ArrayList<>();
         operations.add(Operation.cmp_i);
         operations.add(Operation.set_gt);
-        intOrDouble.replace(IdentType.INT, operations);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
         operations = new ArrayList<>();
         operations.add(Operation.cmp_f);
         operations.add(Operation.set_gt);
-        intOrDouble.replace(IdentType.DOUBLE, operations);
-        binaryOperation.put(TokenType.LE, intOrDouble);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.GT, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
+
+        operations = new ArrayList<>();
+        operations.add(Operation.cmp_i);
+        operations.add(Operation.set_lt);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
+        operations = new ArrayList<>();
+        operations.add(Operation.cmp_f);
+        operations.add(Operation.set_lt);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.LT, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
+
+        operations = new ArrayList<>();
+        operations.add(Operation.cmp_i);
+        operations.add(Operation.set_lt);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
+        operations = new ArrayList<>();
+        operations.add(Operation.cmp_f);
+        operations.add(Operation.set_lt);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.GE, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
+
+        operations = new ArrayList<>();
+        operations.add(Operation.cmp_i);
+        operations.add(Operation.set_gt);
+        intOrDouble.replace(IdentType.INT, (ArrayList<Operation>) operations.clone());
+        operations = new ArrayList<>();
+        operations.add(Operation.cmp_f);
+        operations.add(Operation.set_gt);
+        intOrDouble.replace(IdentType.DOUBLE, (ArrayList<Operation>) operations.clone());
+        binaryOperation.put(TokenType.LE, (HashMap<IdentType, ArrayList<Operation>>) intOrDouble.clone());
+//        System.out.println(binaryOperation);
         }
 
     private void buildStandardFunctionInstruction() {
@@ -441,8 +443,8 @@ public final class Analyser {
 
     private SymbolTable addScope() {
         int level, basePoint;
-        if (listOfSymbolTable.size() == 0) {
-            level = 0;
+        if (listOfSymbolTable.size() < 3) {
+            level = listOfSymbolTable.size();
             basePoint = 0;
         } else {
             SymbolTable lastSymbolTable = listOfSymbolTable.get(listOfSymbolTable.size() - 1);
@@ -553,7 +555,7 @@ public final class Analyser {
 //                throw new AnalyzeError(ErrorCode.InvalidIdentType, peek().getStartPos());
 //        }
 //    }
-
+// TODO: 2020/12/10 loca 偏移有问题 
     private void analyse_let_decl_stmt(ArrayList<Instruction> instructions) throws CompileError {
         expect(TokenType.LET_KW);
         var nameToken = expect(TokenType.IDENT);
@@ -1065,6 +1067,8 @@ public final class Analyser {
                     case MINUS:
                     case MUL:
                     case DIV:
+//                        System.out.println(operator.getTokenType());
+//                        System.out.println(binaryOperation.get(operator.getTokenType()).get(result));
                         for (Operation operation: binaryOperation.get(operator.getTokenType()).get(result)) {
                             instructions.add(new Instruction(operation));
                         }
