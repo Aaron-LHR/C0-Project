@@ -243,6 +243,7 @@ public class Tokenizer {
         } else {
             result = it.nextChar();
         }
+        it.nextChar();
         Pos end = it.currentPos();
         // TODO: 2020/12/4 字符字面量 的语义是被包裹的字符的 ASCII 编码无符号扩展到 64 位的整数值，类型是 int
         return new Token(TokenType.CHAR_LITERAL, result, start, end);
