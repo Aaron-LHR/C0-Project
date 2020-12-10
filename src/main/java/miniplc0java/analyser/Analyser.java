@@ -1032,11 +1032,12 @@ public final class Analyser {
                 expect(TokenType.R_PAREN);
                 break;
             case MINUS:     // negate_expr
-                if (operatorPriority.get(TokenType.PRE_MINUS) <= operatorPriority.get(stackTop)) {
+                if (operatorPriority.get(TokenType.PRE_MINUS) < operatorPriority.get(stackTop)) {
                     return result;
                 }
                 Token minus = expect(TokenType.MINUS);
                 result = analyse_expr(instructions, TokenType.PRE_MINUS);
+                System.out.println(result);
                 Operation negative;
                 if (result == IdentType.INT) {
                     negative = Operation.neg_i;
